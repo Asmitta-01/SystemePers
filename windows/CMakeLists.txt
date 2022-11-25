@@ -86,6 +86,10 @@ if(PLUGIN_BUNDLED_LIBRARIES)
     COMPONENT Runtime)
 endif()
 
+# For printing plugin (manual)
+set(PDFIUM_VERSION "4929" CACHE STRING " " FORCE)
+set(PDFIUM_ARCH "x64" CACHE STRING " " FORCE)
+
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
 set(FLUTTER_ASSET_DIR_NAME "flutter_assets")

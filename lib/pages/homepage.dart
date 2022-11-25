@@ -1,8 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:systeme_pers/classes/Sanction.dart';
+import 'package:systeme_pers/pages/ajouter_employe_page.dart';
 import 'package:systeme_pers/widgets/liste_employes_widget.dart';
+import 'package:systeme_pers/widgets/liste_messages_widget.dart';
 import 'package:systeme_pers/widgets/liste_promotions_widget.dart';
 import 'package:systeme_pers/widgets/liste_sanctions_widget.dart';
+import 'package:systeme_pers/widgets/presentation_documents.dart';
 import 'package:systeme_pers/widgets/presentation_suivi.dart';
 
 import '../classes/Employe.dart';
@@ -70,7 +72,33 @@ class _HomePageState extends State<HomePage> {
                 ),
                 PaneItem(
                   icon: const Icon(FluentIcons.contact_card),
-                  title: const Text('Etablir un contrat de travail'),
+                  title: const Text('Consulter les contrats'),
+                  body: Container(),
+                  selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
+                ),
+              ],
+            ),
+            PaneItemExpander(
+              icon: const Icon(FluentIcons.document_set),
+              title: const Text('Etablir des documents'),
+              body: const PresentationDocumentsPage(),
+              selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
+              items: [
+                PaneItem(
+                  icon: const Icon(FluentIcons.document_approval),
+                  title: const Text('Etablir un nouveau contrat de travail'),
+                  body: AjouterEmployePage(casEmploye: false),
+                  selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
+                ),
+                PaneItem(
+                  icon: const Icon(FluentIcons.certificate),
+                  title: const Text('Etablir une attestation de travail'),
+                  body: const ListePromotionPage(title: 'Liste des promotions'),
+                  selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
+                ),
+                PaneItem(
+                  icon: const Icon(FluentIcons.file_template),
+                  title: const Text('Etablir une fiche de renseignement'),
                   body: Container(),
                   selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
                 ),
@@ -79,7 +107,7 @@ class _HomePageState extends State<HomePage> {
             PaneItem(
               icon: const Icon(FluentIcons.inbox),
               title: const Text('Messagerie'),
-              body: const Text('Pane 03'),
+              body: const ListeMessagesPage(),
               infoBadge: const InfoBadge(source: Text('3')),
               selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
             ),
@@ -125,7 +153,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     setState(() {
-      print(result);
+      debugPrint(result);
     });
   }
 }

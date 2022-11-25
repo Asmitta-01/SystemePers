@@ -1,26 +1,16 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:systeme_pers/classes/Message.dart';
 
-import 'package:systeme_pers/classes/Employe.dart';
-import 'package:systeme_pers/pages/ajouter_employe_page.dart';
-import 'package:systeme_pers/pages/attestation.dart';
-import 'package:systeme_pers/pages/fiche_renseignement.dart';
-
-class ListeEmplPage extends StatefulWidget {
-  const ListeEmplPage({super.key, required this.title, required this.employes});
-
-  final String title;
-  final List<Employe> employes;
+class ListeMessagesPage extends StatefulWidget {
+  const ListeMessagesPage({super.key});
 
   @override
-  // ignore: no_logic_in_create_state
-  State<ListeEmplPage> createState() => _ListeEmplWidget(employes: employes);
+  State<StatefulWidget> createState() => _ListeMessagesPageState();
 }
 
-class _ListeEmplWidget extends State<ListeEmplPage> {
-  _ListeEmplWidget({required this.employes});
-  final List<Employe> employes;
-
-  List<Employe> selectionEmpls = [];
+class _ListeMessagesPageState extends State<ListeMessagesPage> {
+  final _messages = listeMessages;
+  List<Message> selectionMsgs = [];
   bool checkedEnabled = false;
 
   @override
@@ -32,9 +22,9 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
           const Padding(padding: EdgeInsets.all(10)),
           Checkbox(
             content: const Text('Tout selectionner'),
-            checked: selectionEmpls.toSet().containsAll(employes)
+            checked: selectionMsgs.toSet().containsAll(_messages)
                 ? true
-                : selectionEmpls.isEmpty
+                : selectionMsgs.isEmpty
                     ? false
                     : null,
             onChanged: !checkedEnabled
@@ -42,9 +32,9 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                 : (value) {
                     setState(() {
                       if (value == true)
-                        selectionEmpls.addAll(employes);
+                        selectionMsgs.addAll(_messages);
                       else
-                        selectionEmpls.clear();
+                        selectionMsgs.clear();
                     });
                   },
           ),
@@ -54,7 +44,7 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
             onChanged: (value) {
               setState(() {
                 checkedEnabled = value;
-                if (!checkedEnabled) selectionEmpls.clear();
+                if (!checkedEnabled) selectionMsgs.clear();
               });
             },
             content: const Text('Selection multiple'),
@@ -65,12 +55,12 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
               children: [
                 filledButton(
                     icon: FluentIcons.add_friend,
-                    text: 'Ajouter nouvel employe',
+                    text: 'Envoyer nouveau message',
                     fn: () {
-                      Navigator.pushReplacement(
-                        context,
-                        FluentPageRoute(builder: (context) => AjouterEmployePage(casEmploye: true)),
-                      );
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   FluentPageRoute(builder: (context) => AjouterEmployePage(casEmploye: true)),
+                      // );
                     }),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
               ],
@@ -80,64 +70,50 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
       ),
       padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
       content: ListView.builder(
-        itemCount: employes.length,
+        itemCount: _messages.length,
         itemBuilder: (context, index) {
-          final employe = employes[index];
+          final message = _messages[index];
 
           var trailing = SizedBox(
             width: 370,
             child: CommandBar(
               primaryItems: [
                 CommandBarButton(
-                  label: const Text('Fiche renseignement'),
-                  icon: const Icon(FluentIcons.file_template),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      FluentPageRoute(
-                        builder: (context) => FicheRenseignementPage(employe: employe),
-                      ),
-                    );
-                  },
+                  label: const Text('Imprimer'),
+                  icon: const Icon(FluentIcons.print),
+                  onPressed: () {},
                 ),
                 CommandBarButton(
-                  label: const Text('Attestation de travail'),
-                  icon: const Icon(FluentIcons.certificate),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      FluentPageRoute(
-                        builder: (context) => AttestationPage(employe: employe),
-                      ),
-                    );
-                  },
+                  label: const Text('Supprimer'),
+                  icon: const Icon(FluentIcons.delete),
+                  onPressed: () {},
                 ),
               ],
             ),
           );
 
           return ListTile.selectable(
-            title: Text("${employe.nom.toUpperCase()} ${employe.prenom}"),
-            subtitle: Text(employe.postes.last.poste),
+            title: Text(message.titre.toUpperCase()),
+            subtitle: Text(message.dateEnvoi.toString()),
             trailing: trailing,
-            selected: selectionEmpls.contains(employe),
+            selected: selectionMsgs.contains(message),
             selectionMode:
                 checkedEnabled ? ListTileSelectionMode.multiple : ListTileSelectionMode.single,
             onSelectionChange: (selected) {
               setState(() {
                 if (selected) {
                   if (checkedEnabled)
-                    selectionEmpls.add(employe);
+                    selectionMsgs.add(message);
                   else
-                    selectionEmpls = [employe];
+                    selectionMsgs = [message];
                 } else
-                  selectionEmpls.remove(employe);
+                  selectionMsgs.remove(message);
               });
             },
           );
         },
       ),
-      bottomBar: selectionEmpls.length < 2
+      bottomBar: selectionMsgs.length < 2
           ? null
           : Container(
               color: Colors.white,
@@ -148,18 +124,16 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                 children: [
                   Expanded(
                     child: Button(
-                      child: Text('${selectionEmpls.length} selectionne(s)'),
+                      child: Text('${selectionMsgs.length} selectionne(s)'),
                       onPressed: () => {},
                     ),
                   ),
-                  filledButton(
-                    text: 'Imprimer les fiches de la selection',
-                    icon: FluentIcons.print,
-                  ),
                   const Padding(padding: EdgeInsets.all(10)),
                   filledButton(
-                    text: 'Envoyer les fiches de la selection',
-                    icon: FluentIcons.send,
+                    text: 'Supprimer la selection',
+                    icon: FluentIcons.delete_columns,
+                    danger: true,
+                    fn: () => confirmerSuppression(context),
                   ),
                 ],
               ),
@@ -167,10 +141,45 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
     );
   }
 
+  confirmerSuppression(BuildContext context) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => ContentDialog(
+        title: const Text("Voulez-vous vous lever cette sanction ?"),
+        content: const Text(
+            "Vous decidez de lever la sanction donnee a cet employe. En etes vous sur ?"),
+        actions: [
+          Button(
+            child: const Text('Oui, lever la sanction'),
+            onPressed: () {
+              setState(() {
+                selectionMsgs.forEach((element) {
+                  element.supprimerCoteEmetteur();
+                });
+                ;
+                Navigator.pop(context, 'UserKillSanction');
+              });
+            },
+          ),
+          FilledButton(
+            child: const Text('Annuler'),
+            onPressed: () {
+              Navigator.pop(context, 'UserAbortSanctionKill');
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   FilledButton filledButton(
-      {String text = '', IconData icon = FluentIcons.default_settings, void Function()? fn}) {
+      {String text = '',
+      IconData icon = FluentIcons.default_settings,
+      bool danger = false,
+      void Function()? fn}) {
     return FilledButton(
       onPressed: fn ?? () {},
+      style: danger ? ButtonStyle(backgroundColor: ButtonState.all(Colors.red)) : null,
       child: Row(
         children: [Text(text), const Padding(padding: EdgeInsets.all(5)), Icon(icon)],
       ),
