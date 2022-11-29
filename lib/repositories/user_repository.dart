@@ -61,6 +61,20 @@ class UserRepository {
     }
   }
 
+  Future<List<Utilisateur>> all({bool withAdmin = false}) async {
+    final response = await http.get(Uri.parse('http://localhost/syspers/user.php'));
+
+    List<dynamic> json = jsonDecode(response.body);
+    debugPrint('Fetched all users');
+    return json
+        .map((jsonDecode2) => Utilisateur(
+            id: jsonDecode2['id'],
+            matricule: jsonDecode2['matricule'],
+            motdepasse: jsonDecode2['motdepasse'],
+            role: Role.values.elementAt(jsonDecode2['role'])))
+        .toList();
+  }
+
   setUserRole({required String matricule, required Role role}) async {
     await http.patch(Uri.parse('http://localhost/syspers/user.php'),
         headers: <String, String>{'Content-Type': 'application/json'},

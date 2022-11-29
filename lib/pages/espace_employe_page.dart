@@ -56,7 +56,9 @@ class _EspaceEmployePageState extends State<EspaceEmployePage> {
             PaneItem(
               icon: const Icon(FluentIcons.inbox),
               title: const Text('Messagerie'),
-              body: GestionMessagesPage(),
+              body: GestionMessagesPage(
+                currentUser: widget.loggeduser,
+              ),
               infoBadge: const InfoBadge(source: Text('1')),
               selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
             ),

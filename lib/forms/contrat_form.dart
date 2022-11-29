@@ -155,33 +155,34 @@ class _ContratFormState extends State<ContratForm> {
                   InfoLabel(
                     label: 'Employe cible',
                     child: SizedBox(
-                        width: 300,
-                        child: receiveEmpl
-                            ? const Text('')
-                            : FutureBuilder(
-                                future: _employes,
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return ProgressBar(
-                                      activeColor: Colors.blue.darker,
-                                    );
-                                  } else {
-                                    return AutoSuggestBox(
-                                      placeholder: 'Choisissez l\'employe via son matricule',
-                                      items: snapshot.data!
-                                          .map((e) => AutoSuggestBoxItem(
-                                              value: e.matricule, label: e.matricule))
-                                          .toList(),
-                                      enabled: !nouvelEmploye,
-                                      onSelected: (value) {
-                                        setState(() {
-                                          matriculEmpl = value.label;
-                                        });
-                                      },
-                                    );
-                                  }
-                                },
-                              )),
+                      width: 300,
+                      child: receiveEmpl
+                          ? const Text('')
+                          : FutureBuilder(
+                              future: _employes,
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return ProgressBar(
+                                    activeColor: Colors.blue.darker,
+                                  );
+                                } else {
+                                  return AutoSuggestBox(
+                                    placeholder: 'Choisissez l\'employe via son matricule',
+                                    items: snapshot.data!
+                                        .map((e) => AutoSuggestBoxItem(
+                                            value: e.matricule, label: e.matricule))
+                                        .toList(),
+                                    enabled: !nouvelEmploye,
+                                    onSelected: (value) {
+                                      setState(() {
+                                        matriculEmpl = value.label;
+                                      });
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                    ),
                   )
                 ],
               ),

@@ -1,12 +1,14 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Message.dart';
-import 'package:systeme_pers/session_manager.dart';
+import 'package:systeme_pers/classes/Utilisateur.dart';
+import 'package:systeme_pers/repositories/message_repository.dart';
+import 'package:systeme_pers/repositories/user_repository.dart';
 
 class MessageForm extends StatefulWidget {
   final Function() callback;
+  final Utilisateur user;
 
-  const MessageForm({super.key, required this.callback});
+  const MessageForm({super.key, required this.callback, required this.user});
 
   @override
   State<StatefulWidget> createState() => _MessageFormState();
@@ -19,15 +21,15 @@ class _MessageFormState extends State<MessageForm> {
   final _contenuController = TextEditingController();
 
   String? errorTitre, errorContenu;
-  var session = SessionManager();
-
   Message? _message;
-  Employe? currentEmploye;
+
+  var userRepository = UserRepository();
+  Future<List<Utilisateur>>? _users;
 
   @override
   void initState() {
-    session.getCurrentEmploye().then((value) => currentEmploye = value);
     super.initState();
+    _users = userRepository.all();
   }
 
   @override
@@ -50,7 +52,7 @@ class _MessageFormState extends State<MessageForm> {
         const InfoBar(
           title: Text('Information'),
           content: Text(
-              'Tout employe a un contrat. Creer un nouvel employe implique creer un nouveau contrat.\n'),
+              'Pour tout message vous devrez renseigner le titre et le contenu du message et/ou une piece jointe.\n'),
         ),
         const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
         Form(
@@ -73,6 +75,32 @@ class _MessageFormState extends State<MessageForm> {
                 ),
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+              FormRow(
+                error: errorContenu != null ? Text(errorContenu!) : null,
+                child: Container(),
+              ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+              FutureBuilder(
+                future: _users,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return ProgressBar(
+                      activeColor: Colors.blue.darker,
+                    );
+                  } else {
+                    return AutoSuggestBox(
+                      placeholder: 'Choisissez le destinataire de ce message',
+                      items: snapshot.data!
+                          .map((e) => AutoSuggestBoxItem(value: e, label: e.matricule))
+                          .toList(),
+                      onSelected: (value) {
+                        setState(() {});
+                      },
+                    );
+                  }
+                },
+              ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
               FilledButton(
                   child: const Text(
                     'Envoyer message',
@@ -90,7 +118,11 @@ class _MessageFormState extends State<MessageForm> {
                           _message = Message(
                               titre: _titreController.text,
                               contenu: _contenuController.text,
-                              from: currentEmploye);
+                              from: widget.user,
+                              to: widget.user);
+
+                          var messageRepository = MessageRepository();
+                          messageRepository.add(message: _message!);
                           listeMessages.add(_message!);
                         });
                         envoiOk(context);
