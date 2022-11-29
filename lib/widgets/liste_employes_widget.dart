@@ -20,27 +20,24 @@ class ListeEmplPage extends StatefulWidget {
 }
 
 class _ListeEmplWidget extends State<ListeEmplPage> {
-  _ListeEmplWidget(this.optionContrat) {
-    currentEmploye = widget.logggedEmploye;
-  }
+  _ListeEmplWidget(this.optionContrat);
   final bool optionContrat;
-  Future<List<Employe>>? employes;
+  late Future<List<Future<Employe>>> employes;
 
   List<Employe> selectionEmpls = [];
   bool checkedEnabled = false;
 
   var employeRepository = EmployeRepository();
-  Employe? currentEmploye;
 
   @override
   void initState() {
     super.initState();
-    employes = employeRepository.all();
+    employes = employeRepository.all(avecContrat: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Employe>>(
+    return FutureBuilder(
       future: employes,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -64,10 +61,14 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                       ? null
                       : (value) {
                           setState(() {
-                            if (value == true)
-                              selectionEmpls.addAll(snapshot.data!);
-                            else
+                            if (value == true) {
+                              snapshot.data!.forEach((element) async {
+                                var data = await element;
+                                selectionEmpls.add(data);
+                              });
+                            } else {
                               selectionEmpls.clear();
+                            }
                           });
                         },
                 ),
@@ -112,75 +113,113 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                 var trailing = optionContrat
                     ? SizedBox(
                         width: 200,
-                        child: CommandBar(primaryItems: [
-                          CommandBarButton(
-                            label: const Text('Contrats de travail'),
-                            icon: const Icon(FluentIcons.document_set),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                FluentPageRoute(
-                                  builder: (context) => FicheRenseignementPage(employe: employe),
-                                ),
+                        child: FutureBuilder(
+                          future: employe,
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return ProgressBar(
+                                activeColor: Colors.blue.darker,
                               );
-                            },
-                          ),
-                        ]))
+                            } else {
+                              return CommandBar(primaryItems: [
+                                CommandBarButton(
+                                    label: const Text('Contrats de travail'),
+                                    icon: const Icon(FluentIcons.document_set),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        FluentPageRoute(
+                                          builder: (context) =>
+                                              FicheRenseignementPage(employe: snapshot.data!),
+                                        ),
+                                      );
+                                    }),
+                              ]);
+                            }
+                          },
+                        ))
                     : SizedBox(
                         width: 370,
-                        child: CommandBar(
-                          primaryItems: [
-                            CommandBarButton(
-                              label: const Text('Fiche renseignement'),
-                              icon: const Icon(FluentIcons.file_template),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  FluentPageRoute(
-                                    builder: (context) => FicheRenseignementPage(employe: employe),
-                                  ),
+                        child: FutureBuilder(
+                            future: employe,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return ProgressBar(
+                                  activeColor: Colors.blue.darker,
                                 );
-                              },
-                            ),
-                            CommandBarButton(
-                              label: const Text('Attestation de travail'),
-                              icon: const Icon(FluentIcons.certificate),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  FluentPageRoute(
-                                    builder: (context) => AttestationPage(
-                                      employe: employe,
-                                      currentEmploye: currentEmploye!,
+                              } else {
+                                return CommandBar(
+                                  primaryItems: [
+                                    CommandBarButton(
+                                      label: const Text('Fiche renseignement'),
+                                      icon: const Icon(FluentIcons.file_template),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          FluentPageRoute(
+                                            builder: (context) =>
+                                                FicheRenseignementPage(employe: snapshot.data!),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  ),
+                                    CommandBarButton(
+                                      label: const Text('Attestation de travail'),
+                                      icon: const Icon(FluentIcons.certificate),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          FluentPageRoute(
+                                            builder: (context) => AttestationPage(
+                                              employe: snapshot.data!,
+                                              currentEmploye: widget.logggedEmploye,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 );
-                              },
-                            ),
-                          ],
-                        ),
+                              }
+                            }),
                       );
 
-                return ListTile.selectable(
-                  title: Text("${employe.nom.toUpperCase()} ${employe.prenom}"),
-                  subtitle: Text(employe.postes.last.poste),
-                  trailing: trailing,
-                  selected: selectionEmpls.contains(employe),
-                  selectionMode: checkedEnabled
-                      ? ListTileSelectionMode.multiple
-                      : ListTileSelectionMode.single,
-                  onSelectionChange: (selected) {
-                    setState(() {
-                      if (selected) {
-                        if (checkedEnabled)
-                          selectionEmpls.add(employe);
-                        else
-                          selectionEmpls = [employe];
-                      } else
-                        selectionEmpls.remove(employe);
+                return FutureBuilder(
+                    future: employe,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return ListTile(
+                          title: ProgressBar(
+                            activeColor: Colors.blue.darker,
+                          ),
+                        );
+                      } else {
+                        return ListTile.selectable(
+                          title:
+                              Text("${snapshot.data?.nom.toUpperCase()} ${snapshot.data?.prenom}"),
+                          subtitle: snapshot.data!.postes.isNotEmpty
+                              ? Text(snapshot.data!.postes.last.poste)
+                              : const Text('- - - - -'),
+                          trailing: trailing,
+                          selected: selectionEmpls.contains(snapshot.data),
+                          selectionMode: checkedEnabled
+                              ? ListTileSelectionMode.multiple
+                              : ListTileSelectionMode.single,
+                          onSelectionChange: (selected) {
+                            setState(() {
+                              if (selected) {
+                                if (checkedEnabled) {
+                                  selectionEmpls.add(snapshot.data!);
+                                } else {
+                                  selectionEmpls = [snapshot.data!];
+                                }
+                              } else
+                                selectionEmpls.remove(employe);
+                            });
+                          },
+                        );
+                      }
                     });
-                  },
-                );
               },
             ),
             bottomBar: selectionEmpls.length < 2

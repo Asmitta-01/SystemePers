@@ -78,7 +78,8 @@ class Employe extends Utilisateur {
     if (_contrats.length == 1) {
       // Renvoi definitif
     }
-    _contrats.remove(ctr);
+    // _contrats.remove(ctr);
+    ctr.resiliation();
   }
 
   List<Object> toArray() {

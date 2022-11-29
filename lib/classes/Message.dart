@@ -3,13 +3,6 @@ import 'package:systeme_pers/repositories/user_repository.dart';
 
 enum MessageType { notification, defaut, document }
 
-var listeMessages = [
-  Message(titre: 'Message 1', contenu: 'Beaucoup de choses'),
-  Message(titre: 'Message 2', contenu: 'Autres choses'),
-  Message(titre: 'Message 3', contenu: 'Certaines choses'),
-  Message(titre: 'Message 4', contenu: 'Du n\'importe quoi'),
-];
-
 class Message {
   final int? id = null;
   MessageType? _type;

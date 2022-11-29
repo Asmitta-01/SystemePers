@@ -28,35 +28,32 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_verificationEnCours && _stepOneOk) {
-      if (_fetchedUser == null) {
-        debugPrint('Found');
-        setState(() {
+    setState(() {
+      if (_verificationEnCours && _stepOneOk) {
+        if (_fetchedUser == null) {
+          debugPrint('Found');
           errrorMat = 'Ce matricule n\'est pas reconnu dans la base';
           _verificationEnCours = false;
-        });
-      } else if (!verificationMotdepasse(mdp: _motdepasseController.text)) {
-        setState(() {
+        } else if (!verificationMotdepasse(mdp: _motdepasseController.text)) {
           debugPrint('Checked password');
           errorMdp = "Mot de passes incorrect";
           _verificationEnCours = false;
-        });
-      } else {
-        setState(() {
+        } else {
           _verificationEnCours = false;
           _formKey.currentState!.reset();
           _stepOneOk = false;
-        });
-        if (_fetchedUser!.role == Role.chargePersonnel) {
-          _navKey.currentState!.pushNamed('/espacechargedupersonnel');
-        } else if (_fetchedUser!.role == Role.employe) {
-          _navKey.currentState!.pushNamed('/espaceemploye');
-        } else if (_fetchedUser!.role == Role.admin) {
-          _navKey.currentState!.pushNamed('/espaceadministrateur');
+
+          if (_fetchedUser!.role == Role.chargePersonnel) {
+            _navKey.currentState!.pushReplacementNamed('/espacechargedupersonnel');
+          } else if (_fetchedUser!.role == Role.employe) {
+            _navKey.currentState!.pushReplacementNamed('/espaceemploye');
+          } else if (_fetchedUser!.role == Role.admin) {
+            _navKey.currentState!.pushReplacementNamed('/espaceadministrateur');
+          }
+          debugPrint('Logged');
         }
-        debugPrint('Logged');
       }
-    }
+    });
 
     var text = _verificationEnCours
         ? Padding(

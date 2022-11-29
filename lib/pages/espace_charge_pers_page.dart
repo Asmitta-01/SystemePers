@@ -24,7 +24,7 @@ class EspaceChargePersPage extends StatefulWidget {
 class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
   var _topIndex = 0;
   var employeRepository = EmployeRepository();
-  Future<Employe?>? _currentEmploye;
+  late Future<Employe?> _currentEmploye;
 
   @override
   void initState() {
@@ -60,16 +60,17 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
           items: [
             PaneItem(
               icon: const Icon(FluentIcons.task_list),
-              title: FutureBuilder(
-                future: _currentEmploye,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return progressBar;
-                  } else {
-                    return const Text('Liste des employes');
-                  }
-                },
-              ),
+              title: const Text('Liste des employes'),
+              // title: FutureBuilder(
+              //   future: _currentEmploye,
+              //   builder: (context, snapshot) {
+              //     if (!snapshot.hasData) {
+              //       return progressBar;
+              //     } else {
+              //       return const Text('Liste des employes');
+              //     }
+              //   },
+              // ),
               body: FutureBuilder(
                 future: _currentEmploye,
                 builder: (context, snapshot) {
@@ -194,14 +195,14 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
           Button(
             child: const Text('Je veux me deconnecter'),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+              // Navigator.popUntil(context, (route) => false);
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
           FilledButton(
             child: const Text('Annuler'),
             onPressed: () {
               Navigator.pop(context, true);
-              Navigator.pushReplacementNamed(context, '/');
             },
           )
         ],

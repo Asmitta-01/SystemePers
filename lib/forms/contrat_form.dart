@@ -28,7 +28,7 @@ class _ContratFormState extends State<ContratForm> {
 
   final _formKey = GlobalKey<FormState>();
   Future<List<Poste>>? _postes;
-  Future<List<Employe>>? _employes;
+  late Future<List<Future<Employe>>> _employes;
 
   Poste? _selectedPoste;
   double _durationValue = 90;
@@ -168,10 +168,14 @@ class _ContratFormState extends State<ContratForm> {
                                 } else {
                                   return AutoSuggestBox(
                                     placeholder: 'Choisissez l\'employe via son matricule',
-                                    items: snapshot.data!
-                                        .map((e) => AutoSuggestBoxItem(
-                                            value: e.matricule, label: e.matricule))
-                                        .toList(),
+                                    items: snapshot.data!.map((e) {
+                                      var data;
+                                      e.then(
+                                        (value) => data = e,
+                                      );
+                                      return AutoSuggestBoxItem(
+                                          value: data.matricule, label: data.matricule);
+                                    }).toList(),
                                     enabled: !nouvelEmploye,
                                     onSelected: (value) {
                                       setState(() {
@@ -288,7 +292,7 @@ class _ContratFormState extends State<ContratForm> {
                     return FilledButton(
                       onPressed: () {
                         if (_formKey.currentState?.validate() ?? false) {
-                          setState(() {
+                          setState(() async {
                             _contrat = Contrat();
                             _contrat!.dureeContrat = Duration(days: _durationValue.toInt());
                             _contrat!.salaire = num.tryParse(_salaireController.text)!.toDouble();
@@ -298,8 +302,15 @@ class _ContratFormState extends State<ContratForm> {
                             _contrat!.poste = _selectedPoste!;
 
                             if (!nouvelEmploye) {
-                              _contrat!.employe = snapshot.data!
-                                  .singleWhere((element) => element.matricule == matriculEmpl);
+                              // _contrat!.employe = snapshot.data!
+                              //     .singleWhere((element) => element.matricule == matriculEmpl);
+                              for (var element in snapshot.data!) {
+                                var employe = await element;
+                                if (employe.matricule == matriculEmpl) {
+                                  _contrat!.employe = employe;
+                                  break;
+                                }
+                              }
                             }
 
                             callback(_contrat!);

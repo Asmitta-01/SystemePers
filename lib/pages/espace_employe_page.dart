@@ -91,13 +91,13 @@ class _EspaceEmployePageState extends State<EspaceEmployePage> {
               icon: const Icon(FluentIcons.sign_out),
               title: const Text('Se deconnecter'),
               body: Container(),
-              onTap: () => mieeAjour(context),
+              onTap: () => confirmerDeconnexion(context),
             )
           ]),
     );
   }
 
-  mieeAjour(BuildContext context) async {
+  confirmerDeconnexion(BuildContext context) async {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => ContentDialog(
@@ -107,13 +107,14 @@ class _EspaceEmployePageState extends State<EspaceEmployePage> {
           Button(
             child: const Text('Je veux me deconnecter'),
             onPressed: () {
-              Navigator.popAndPushNamed(context, '/');
+              // Navigator.popUntil(context, (route) => false);
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
           FilledButton(
             child: const Text('Annuler'),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             },
           )
         ],

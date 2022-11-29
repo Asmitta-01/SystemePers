@@ -46,24 +46,29 @@ class EmployeRepository {
     return false;
   }
 
-  Future<List<Employe>> all({bool avecContrat = false}) async {
+  Future<List<Future<Employe>>> all({bool avecContrat = false}) async {
     final response = await http.get(Uri.parse('http://localhost/syspers/employe.php'));
     List<dynamic> results = jsonDecode(response.body);
     var contratRepository = ContratRepository();
-    var contrats = await contratRepository.all();
 
     debugPrint('Fetched all employees...');
 
-    return results.map((e) {
+    return results.map((e) async {
+      var contrats;
+      if (avecContrat) {
+        contratRepository.findAllForEmploye(e['id_user']).then(
+          (value) {
+            contrats = value;
+          },
+        );
+      }
       return Employe(
         id: e['id_user'],
         nom: e['nom_empl'],
         prenom: e['prn_empl'],
         numeroCni: e['numero_cni'],
         dateNaissance: e['date_naissance'],
-        contrats: avecContrat
-            ? contrats.where((element) => element.employe.id == e['id_user']).toList()
-            : null,
+        contrats: contrats,
       );
     }).toList();
   }

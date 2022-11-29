@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:path/path.dart' as path;
 import 'package:systeme_pers/classes/Message.dart';
 import 'package:systeme_pers/classes/Utilisateur.dart';
 import 'package:systeme_pers/repositories/message_repository.dart';
@@ -19,9 +23,12 @@ class _MessageFormState extends State<MessageForm> {
 
   final _titreController = TextEditingController();
   final _contenuController = TextEditingController();
+  final _receiverController = TextEditingController();
 
-  String? errorTitre, errorContenu;
+  File? file;
+  String? errorTitre, errorSender, pieceJn;
   Message? _message;
+  Utilisateur? receiver;
 
   var userRepository = UserRepository();
   Future<List<Utilisateur>>? _users;
@@ -65,7 +72,6 @@ class _MessageFormState extends State<MessageForm> {
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
               FormRow(
-                error: errorContenu != null ? Text(errorContenu!) : null,
                 child: TextBox(
                   controller: _contenuController,
                   header: 'Contenu du message',
@@ -76,8 +82,27 @@ class _MessageFormState extends State<MessageForm> {
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
               FormRow(
-                error: errorContenu != null ? Text(errorContenu!) : null,
-                child: Container(),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Row(children: [
+                  Expanded(
+                      child: TextBox(
+                    header: 'Piece jointe',
+                    initialValue: pieceJn,
+                  )),
+                  const Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
+                  Button(
+                      child: const Text('Importer un fichier'),
+                      onPressed: () async {
+                        FilePickerResult? result = await FilePicker.platform
+                            .pickFiles(type: FileType.custom, allowedExtensions: ['jpg', 'pdf']);
+                        if (result != null) {
+                          file = File(result.files.first.path!);
+                          setState(() {
+                            pieceJn = file?.path;
+                          });
+                        }
+                      })
+                ]),
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
               FutureBuilder(
@@ -88,14 +113,22 @@ class _MessageFormState extends State<MessageForm> {
                       activeColor: Colors.blue.darker,
                     );
                   } else {
-                    return AutoSuggestBox(
-                      placeholder: 'Choisissez le destinataire de ce message',
-                      items: snapshot.data!
-                          .map((e) => AutoSuggestBoxItem(value: e, label: e.matricule))
-                          .toList(),
-                      onSelected: (value) {
-                        setState(() {});
-                      },
+                    return InfoLabel(
+                      label: errorSender != null ? errorSender! : 'Destinataire',
+                      child: SizedBox(
+                          width: 300,
+                          child: AutoSuggestBox(
+                            controller: _receiverController,
+                            placeholder: 'Choisissez le destinataire de ce message',
+                            items: snapshot.data!
+                                .map((e) => AutoSuggestBoxItem(value: e, label: e.matricule))
+                                .toList(),
+                            onSelected: (value) {
+                              setState(() {
+                                receiver = value.value;
+                              });
+                            },
+                          )),
                     );
                   }
                 },
@@ -112,18 +145,24 @@ class _MessageFormState extends State<MessageForm> {
                         setState(() {
                           errorTitre = "Votre message doit avoir un titre";
                         });
+                      } else if (_receiverController.text.isEmpty || receiver == null) {
+                        setState(() {
+                          errorSender = "Vousd evez choisir un destinataire";
+                        });
                       } else {
                         setState(() {
                           errorTitre = null;
+                          var pth = '../files/${path.basename(file!.path)}';
                           _message = Message(
                               titre: _titreController.text,
                               contenu: _contenuController.text,
+                              pj: pth,
                               from: widget.user,
-                              to: widget.user);
+                              to: receiver);
 
+                          if (pth != '') file?.copy(pth);
                           var messageRepository = MessageRepository();
                           messageRepository.add(message: _message!);
-                          listeMessages.add(_message!);
                         });
                         envoiOk(context);
                       }

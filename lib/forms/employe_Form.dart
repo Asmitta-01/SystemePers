@@ -9,6 +9,7 @@ class EmployeForm extends StatefulWidget {
   final Employe? employe;
 
   @override
+  // ignore: no_logic_in_create_state
   State<StatefulWidget> createState() => _EmployeFormState(callback: callback, contrat: contrat);
 }
 
