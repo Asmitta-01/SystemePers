@@ -1,9 +1,16 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:systeme_pers/classes/Employe.dart';
+import 'package:systeme_pers/classes/Utilisateur.dart';
 
 class AttestationPage extends StatelessWidget {
-  const AttestationPage({super.key, required this.employe});
+  AttestationPage({super.key, required this.employe, required this.currentEmploye});
+
   final Employe employe;
+  final Employe currentEmploye;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +35,7 @@ class AttestationPage extends StatelessWidget {
                     onPressed: () {},
                     label: const Text(
                       "Attestation de travail",
-                      style: TextStyle(
-                          fontSize: 20, backgroundColor: Colors.white),
+                      style: TextStyle(fontSize: 20, backgroundColor: Colors.white),
                     ),
                     subtitle: Text(
                       'Employe ${employe.matricule}',
@@ -49,7 +55,9 @@ class AttestationPage extends StatelessWidget {
                       Icon(FluentIcons.print)
                     ],
                   ),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await Printing.layoutPdf(onLayout: ((format) async => _generatePdf(format)));
+                  },
                 ),
                 const Padding(padding: EdgeInsets.all(10)),
                 FilledButton(
@@ -67,8 +75,92 @@ class AttestationPage extends StatelessWidget {
           ],
         ),
       ),
-      content: Column(children: []),
+      content: PdfPreview(
+        build: (format) => _generatePdf(format),
+        allowSharing: false,
+        canDebug: false,
+        pdfFileName: 'Attestation de travail_${employe.matricule}',
+        onPrinted: (context) => inmpressionOk(context),
+        onError: (context, error) => inmpressionOk(context, error),
+      ),
       bottomBar: Row(),
+    );
+  }
+
+  Future<Uint8List> _generatePdf(PdfPageFormat format) async {
+    final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
+    // final font = await PdfGoogleFonts.nunitoExtraLight();
+
+    pdf.addPage(pw.Page(
+      pageFormat: format,
+      build: (context) => pw.Column(children: [
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+          margin: const pw.EdgeInsets.only(top: 20),
+          color: PdfColor.fromHex('#FFF'),
+          width: double.infinity,
+          child: pw.Text(
+            'Attestation de travail',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 22,
+                // font: font,
+                decoration: pw.TextDecoration.underline,
+                decorationStyle: pw.TextDecorationStyle.solid),
+          ),
+        ),
+        pw.Container(
+          color: PdfColor.fromHex('#FFF'),
+          width: double.infinity,
+          padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 35),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Je soussigne, Monsieur/Madame ${currentEmploye.nom} ${currentEmploye.prenom!}, agissant en qualite de' +
+                  ' ${currentEmploye.role == Role.chargePersonnel ? 'charge du personnel' : 'Directeur'} de l\'Univesite de ******'),
+              pw.Padding(padding: const pw.EdgeInsets.all(10)),
+              pw.Text('Certifie et atteste par la presnete que :'),
+              pw.Padding(padding: const pw.EdgeInsets.all(10)),
+              pw.Text(
+                  'Monsieur/Madame ${employe.nom} ${employe.prenom!}, ne le ${employe.dateNaissance}, demeurant a *********'),
+              pw.Padding(padding: const pw.EdgeInsets.all(10)),
+              pw.Text('Est un salarie de notre Universite depuis le ${employe.contrats.first.dateSignature},' +
+                  ' en vertu d\'un contrat de travail a duree ${employe.contrats.any((element) => !element.estCDD) ? 'indeterminee' : 'determinee'}'),
+              pw.Text(
+                  'et qu\'il n\'est actuellement ni demissionnaire, ni en procedure de licenciement.'),
+              pw.Padding(padding: const pw.EdgeInsets.all(10)),
+              pw.Text('Il y exerce des fonctions decrites telles que suit: '),
+              pw.Text(employe.contrats.map((e) => e.poste.descriptionPoste).join(', ')),
+              pw.Padding(padding: const pw.EdgeInsets.all(20)),
+              pw.Text(
+                  'Cette attestation est delivree a la demande du Salarie pour servir et faire valoir ce que de droit;'),
+              pw.Padding(padding: const pw.EdgeInsets.all(10)),
+              pw.Text('Fait a Douala'),
+              pw.Text('Le ${DateTime.now()}'),
+            ],
+          ),
+        ),
+      ]),
+    ));
+
+    return pdf.save();
+  }
+
+  inmpressionOk(BuildContext context, [error]) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => ContentDialog(
+        title: Text(error == null ? "Impression reussi" : "Une erreur est survenue"),
+        content: error == null ? null : Text(error.toString()),
+        actions: [
+          FilledButton(
+            child: const Text('Okay, compris'),
+            onPressed: () {
+              Navigator.popAndPushNamed(context, '/espacechargedupersonnel');
+            },
+          )
+        ],
+      ),
     );
   }
 }

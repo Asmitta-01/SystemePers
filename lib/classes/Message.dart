@@ -10,7 +10,7 @@ var listeMessages = [
 ];
 
 class Message {
-  final int id = 0;
+  final int? id = null;
   MessageType? _type;
   String? _titre;
   String? _contenu;

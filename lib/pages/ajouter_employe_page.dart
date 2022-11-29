@@ -4,7 +4,8 @@ import 'package:systeme_pers/forms/contrat_form.dart';
 import 'package:systeme_pers/forms/employe_Form.dart';
 
 import 'package:systeme_pers/classes/Contrat.dart';
-import 'package:systeme_pers/pages/homepage.dart';
+import 'package:systeme_pers/pages/espace_charge_pers_page.dart';
+import 'package:systeme_pers/repositories/employe_repository.dart';
 
 class AjouterEmployePage extends StatefulWidget {
   bool casEmploye;
@@ -18,6 +19,8 @@ class AjouterEmployePage extends StatefulWidget {
 class _AjouterEmployePageState extends State<AjouterEmployePage> {
   Employe? employe;
   Contrat? contrat;
+
+  late EmployeRepository _employeRepository;
 
   callbackContrat(Contrat ctr) {
     setState(() {
@@ -39,7 +42,10 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
   @override
   Widget build(BuildContext context) {
     if (employe != null && contrat != null) {
+      _employeRepository = EmployeRepository();
+      _employeRepository.add(employe: employe!, contrat: contrat!);
       Future.delayed(Duration.zero, () => informNouvelEmploye(context));
+
       return Container();
     } else {
       return widget.casEmploye == false
@@ -68,9 +74,15 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
           FilledButton(
             child: const Text('Ok, j\'ai compris'),
             onPressed: () {
+              setState(() {
+                if (widget.casEmploye == false) employe = null;
+                if (widget.casEmploye == true) contrat = null;
+              });
               Navigator.pop(context, true);
-              Navigator.pushReplacement(
-                  context, FluentPageRoute(builder: (context) => const HomePage(title: 'title')));
+              // Navigator.pushReplacement(
+              //     context,
+              //     FluentPageRoute(
+              //         builder: (context) =>  EspaceChargePersPage()));
             },
           ),
         ],

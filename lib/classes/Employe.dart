@@ -6,39 +6,6 @@ import 'package:systeme_pers/classes/Sanction.dart';
 
 import 'package:systeme_pers/classes/Utilisateur.dart';
 
-var listEmployes = [
-  Employe(
-      matricule: '10DDN1',
-      nom: 'User 1',
-      prenom: 'First User',
-      contrat: Contrat(poste: listePostes.first)),
-  Employe(matricule: '11FDN1', nom: 'User 2', prenom: 'Second User', contrat: Contrat()),
-  Employe(
-      matricule: '10D231',
-      nom: 'User 3',
-      prenom: 'Third User',
-      contrat: Contrat(poste: listePostes.first)),
-  Employe(
-      matricule: '10D221',
-      nom: 'User 4',
-      prenom: 'Fourth User',
-      contrat: Contrat(poste: listePostes.last)),
-  Employe(matricule: '10D211', nom: 'User 5', prenom: 'Fifth User', contrat: Contrat()),
-  Employe(
-      matricule: '10FF51',
-      nom: 'User 6',
-      prenom: 'Sixth User',
-      contrat: Contrat(poste: listePostes.elementAt(2))),
-  Employe(matricule: '19D231', nom: 'User 7', prenom: 'Seventh User', contrat: Contrat()),
-  Employe(
-      matricule: '30D231',
-      nom: 'User 8',
-      prenom: '... User',
-      contrat: Contrat(poste: listePostes.elementAt(4))),
-  Employe(matricule: '1JJ231', nom: 'User 10', prenom: '... User', contrat: Contrat()),
-  Employe(matricule: '10E983', nom: 'User 11', prenom: '... User', contrat: Contrat()),
-];
-
 class Employe extends Utilisateur {
   String _nom = '';
   String? _prenom;
@@ -51,18 +18,22 @@ class Employe extends Utilisateur {
   final List<Message> _messages = <Message>[];
 
   Employe(
-      {super.matricule,
+      {super.id,
+      super.matricule,
       super.motdepasse,
       required String nom,
       prenom = '',
       numeroCni = '',
-      dateNaissance,
-      required Contrat contrat}) {
+      String dateNaissance = '2001-07-08',
+      Contrat? contrat,
+      List<Contrat>? contrats}) {
     _nom = nom;
     _prenom = prenom;
     _numeroCni = numeroCni;
+    _dateNaissance = DateTime.parse(dateNaissance);
 
-    _contrats.add(contrat);
+    if (contrat != null) _contrats.add(contrat);
+    if (contrats != null) for (var element in _contrats) ajouterContrat(element);
 
     super.role = Role.employe;
   }
@@ -73,7 +44,11 @@ class Employe extends Utilisateur {
   String? get prenom => _prenom;
   set prenom(String? value) => _prenom = value!;
 
+  String? get numeroCni => _numeroCni;
+  set numeroCni(String? value) => _numeroCni = value!;
+
   set dateNaissance(DateTime date) => _dateNaissance = date;
+  DateTime get dateNaissance => _dateNaissance!;
 
   List<Contrat> get contrats => _contrats;
   List<Promotion> get promotions => _promotions;
@@ -100,6 +75,18 @@ class Employe extends Utilisateur {
   }
 
   void supprimerContrat(Contrat ctr) {
+    if (_contrats.length == 1) {
+      // Renvoi definitif
+    }
     _contrats.remove(ctr);
+  }
+
+  List<Object> toArray() {
+    return [
+      _nom,
+      _prenom!,
+      _numeroCni,
+      _dateNaissance!.toIso8601String(),
+    ];
   }
 }

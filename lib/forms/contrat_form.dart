@@ -2,6 +2,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:systeme_pers/classes/Contrat.dart';
 import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Poste.dart';
+import 'package:systeme_pers/repositories/employe_repository.dart';
+import 'package:systeme_pers/repositories/poste_repository.dart';
 
 class ContratForm extends StatefulWidget {
   const ContratForm({super.key, this.empl, required this.callback});
@@ -19,13 +21,14 @@ class _ContratFormState extends State<ContratForm> {
       receiveEmpl = true;
     }
   }
+
   Employe? empl;
   Function(Contrat) callback;
   bool receiveEmpl = false;
 
   final _formKey = GlobalKey<FormState>();
-  final _postes = listePostes;
-  final _employes = listEmployes;
+  Future<List<Poste>>? _postes;
+  Future<List<Employe>>? _employes;
 
   Poste? _selectedPoste;
   double _durationValue = 90;
@@ -39,6 +42,18 @@ class _ContratFormState extends State<ContratForm> {
 
   Contrat? _contrat;
 
+  var employeRepository = EmployeRepository();
+  var posteRepository = PosteRepository();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _employes = employeRepository.all();
+    _postes = posteRepository.all();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ScaffoldPage.scrollable(
       header: Container(
@@ -140,26 +155,33 @@ class _ContratFormState extends State<ContratForm> {
                   InfoLabel(
                     label: 'Employe cible',
                     child: SizedBox(
-                      width: 300,
-                      child: receiveEmpl
-                          ? Text(
-                              'Employe repondant au matricule: $matriculEmpl',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          : AutoSuggestBox(
-                              placeholder: 'Choisissez l\'employe via son matricule',
-                              items: _employes
-                                  .map((e) =>
-                                      AutoSuggestBoxItem(value: e.matricule, label: e.matricule))
-                                  .toList(),
-                              enabled: !nouvelEmploye,
-                              onSelected: (value) {
-                                setState(() {
-                                  matriculEmpl = value.value;
-                                });
-                              },
-                            ),
-                    ),
+                        width: 300,
+                        child: receiveEmpl
+                            ? const Text('')
+                            : FutureBuilder(
+                                future: _employes,
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return ProgressBar(
+                                      activeColor: Colors.blue.darker,
+                                    );
+                                  } else {
+                                    return AutoSuggestBox(
+                                      placeholder: 'Choisissez l\'employe via son matricule',
+                                      items: snapshot.data!
+                                          .map((e) => AutoSuggestBoxItem(
+                                              value: e.matricule, label: e.matricule))
+                                          .toList(),
+                                      enabled: !nouvelEmploye,
+                                      onSelected: (value) {
+                                        setState(() {
+                                          matriculEmpl = value.label;
+                                        });
+                                      },
+                                    );
+                                  }
+                                },
+                              )),
                   )
                 ],
               ),
@@ -168,22 +190,36 @@ class _ContratFormState extends State<ContratForm> {
                 textStyle: const TextStyle(color: Colors.black),
                 child: InfoLabel(
                   label: 'Poste du contrat',
-                  child: ComboboxFormField(
-                    icon: const Icon(FluentIcons.post_update),
-                    iconSize: 15,
-                    placeholder: const Text('Choisir un poste'),
-                    items: _postes
-                        .map((e) => ComboBoxItem(
-                              value: e.poste,
-                              child: Text(e.poste),
-                            ))
-                        .toList(),
-                    onChanged: ((value) => setState(() {
-                          _selectedPoste = _postes.singleWhere((element) => element.poste == value);
-                        })),
-                    validator: ((value) {
-                      return value == null || value.isEmpty ? "Veuillez choisir un poste" : null;
-                    }),
+                  child: FutureBuilder(
+                    future: _postes,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return ProgressBar(
+                          activeColor: Colors.blue.darker,
+                        );
+                      } else {
+                        return ComboboxFormField(
+                          icon: const Icon(FluentIcons.post_update),
+                          iconSize: 15,
+                          placeholder: const Text('Choisir un poste'),
+                          items: snapshot.data!
+                              .map((e) => ComboBoxItem(
+                                    value: e.poste,
+                                    child: Text(e.poste),
+                                  ))
+                              .toList(),
+                          onChanged: ((value) => setState(() {
+                                _selectedPoste =
+                                    snapshot.data!.singleWhere((element) => element.poste == value);
+                              })),
+                          validator: ((value) {
+                            return value == null || value.toString().isEmpty
+                                ? "Veuillez choisir un poste"
+                                : null;
+                          }),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
@@ -240,32 +276,43 @@ class _ContratFormState extends State<ContratForm> {
                   maxLines: 10,
                 ),
               ),
-              FilledButton(
-                  child: const Text(
-                    'Creer le contrat',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      setState(() {
-                        _contrat = Contrat();
-                        _contrat!.dureeContrat = Duration(days: _durationValue.toInt());
-                        _contrat!.salaire = num.tryParse(_salaireController.text)!.toDouble();
-                        _contrat!.dureePreavis = Duration(days: _preavisValue.toInt());
-                        _contrat!.nbrHeuresTravail = Duration(hours: _hebdoValue.toInt());
-                        _contrat!.clausesSupp = _clausesController.text;
-                        _contrat!.poste =
-                            listePostes.singleWhere((element) => element == _selectedPoste);
+              FutureBuilder(
+                future: _employes,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return ProgressBar(
+                      activeColor: Colors.blue.darker,
+                    );
+                  } else {
+                    return FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          setState(() {
+                            _contrat = Contrat();
+                            _contrat!.dureeContrat = Duration(days: _durationValue.toInt());
+                            _contrat!.salaire = num.tryParse(_salaireController.text)!.toDouble();
+                            _contrat!.dureePreavis = Duration(days: _preavisValue.toInt());
+                            _contrat!.nbrHeuresTravail = Duration(hours: _hebdoValue.toInt());
+                            _contrat!.clausesSupp = _clausesController.text;
+                            _contrat!.poste = _selectedPoste!;
 
-                        if (!nouvelEmploye) {
-                          _contrat!.employe =
-                              _employes.singleWhere((element) => element.matricule == matriculEmpl);
+                            if (!nouvelEmploye) {
+                              _contrat!.employe = snapshot.data!
+                                  .singleWhere((element) => element.matricule == matriculEmpl);
+                            }
+
+                            callback(_contrat!);
+                          });
                         }
-
-                        callback(_contrat!);
-                      });
-                    }
-                  })
+                      },
+                      child: const Text(
+                        'Creer le contrat',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }
+                },
+              )
             ],
           ),
         )

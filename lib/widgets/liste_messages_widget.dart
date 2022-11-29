@@ -2,7 +2,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:systeme_pers/classes/Message.dart';
 
 class ListeMessagesPage extends StatefulWidget {
-  const ListeMessagesPage({super.key});
+  const ListeMessagesPage({super.key, required this.callback});
+  final Function callback;
 
   @override
   State<StatefulWidget> createState() => _ListeMessagesPageState();
@@ -19,7 +20,7 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
       header: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Padding(padding: EdgeInsets.all(10)),
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20)),
           Checkbox(
             content: const Text('Tout selectionner'),
             checked: selectionMsgs.toSet().containsAll(_messages)
@@ -54,13 +55,10 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 filledButton(
-                    icon: FluentIcons.add_friend,
+                    icon: FluentIcons.new_mail,
                     text: 'Envoyer nouveau message',
                     fn: () {
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   FluentPageRoute(builder: (context) => AjouterEmployePage(casEmploye: true)),
-                      // );
+                      setState(() => widget.callback());
                     }),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
               ],
@@ -75,7 +73,7 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
           final message = _messages[index];
 
           var trailing = SizedBox(
-            width: 370,
+            width: 240,
             child: CommandBar(
               primaryItems: [
                 CommandBarButton(
@@ -86,14 +84,14 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
                 CommandBarButton(
                   label: const Text('Supprimer'),
                   icon: const Icon(FluentIcons.delete),
-                  onPressed: () {},
+                  onPressed: () => confirmerSuppression(context),
                 ),
               ],
             ),
           );
 
           return ListTile.selectable(
-            title: Text(message.titre.toUpperCase()),
+            title: Text(message.titre.uppercaseFirst()),
             subtitle: Text(message.dateEnvoi.toString()),
             trailing: trailing,
             selected: selectionMsgs.contains(message),
@@ -145,12 +143,11 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => ContentDialog(
-        title: const Text("Voulez-vous vous lever cette sanction ?"),
-        content: const Text(
-            "Vous decidez de lever la sanction donnee a cet employe. En etes vous sur ?"),
+        title: const Text("Voulez-vous vous ne plus voir ce message ?"),
+        content: const Text("Vous decidez de supprimer ce(s) message(s). En etes vous sur ?"),
         actions: [
           Button(
-            child: const Text('Oui, lever la sanction'),
+            child: const Text('Oui, je confirme la suppression'),
             onPressed: () {
               setState(() {
                 selectionMsgs.forEach((element) {

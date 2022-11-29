@@ -1,24 +1,7 @@
 import 'package:systeme_pers/classes/Employe.dart';
 
-var listeSanctions = [
-  Sanction(
-      libelle: 'Suppression des conges', motif: 'Retards abusifs', employe: listEmployes.first),
-  Sanction(
-      libelle: 'Deduction de 50% du salaire',
-      motif: 'Dommage et interets',
-      employe: listEmployes.first),
-  Sanction(
-      libelle: 'Deduction de 10% du salaire', motif: 'Retards abusifs', employe: listEmployes.last),
-  Sanction(
-      libelle: 'Heures supplementaires non remunerees',
-      motif: 'Retards abusifs',
-      employe: listEmployes.elementAt(4)),
-  Sanction(
-      libelle: 'Renvoi temporaire', motif: 'Manque de respect', employe: listEmployes.elementAt(7)),
-];
-
 class Sanction {
-  final int id = 0;
+  final int? id = null;
   String? _libelle;
   String? _motif;
   String? _details;

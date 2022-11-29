@@ -3,9 +3,10 @@ import 'package:systeme_pers/classes/Contrat.dart';
 import 'package:systeme_pers/classes/Employe.dart';
 
 class EmployeForm extends StatefulWidget {
-  const EmployeForm({super.key, this.contrat, required this.callback});
+  const EmployeForm({super.key, this.contrat, required this.callback, this.employe});
   final Contrat? contrat;
   final Function(Employe) callback;
+  final Employe? employe;
 
   @override
   State<StatefulWidget> createState() => _EmployeFormState(callback: callback, contrat: contrat);
@@ -14,7 +15,9 @@ class EmployeForm extends StatefulWidget {
 class _EmployeFormState extends State<EmployeForm> {
   final _formKey = GlobalKey<FormState>();
 
-  _EmployeFormState({this.contrat, required this.callback});
+  _EmployeFormState({this.contrat, required this.callback}) {
+    _dateNaissance = widget.employe == null ? DateTime.now() : widget.employe!.dateNaissance;
+  }
 
   Function(Employe) callback;
   Contrat? contrat;
@@ -58,10 +61,11 @@ class _EmployeFormState extends State<EmployeForm> {
                 child: TextFormBox(
                   controller: _nomController,
                   header: 'Nom',
+                  initialValue: widget.employe == null ? null : widget.employe!.nom,
                   placeholder: 'Hamat',
                   validator: (value) {
                     if (value == null || value.length < 3)
-                      return 'Veuillez entrer le nom de l\'employe (04 caracteres minimum)';
+                      return 'Veuillez entrer le nom de l\'employe (03 caracteres minimum)';
                   },
                 ),
               ),
@@ -69,11 +73,12 @@ class _EmployeFormState extends State<EmployeForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: TextFormBox(
                   controller: _prenomController,
+                  initialValue: widget.employe == null ? null : widget.employe!.prenom,
                   header: 'Prenoms',
                   placeholder: 'John, Harold, Washington, etc.',
                   validator: (value) {
                     if (value == null || value.length < 3)
-                      return 'Veuillez entrer le prenom de l\'employe (04 caracteres minimum)';
+                      return 'Veuillez entrer le prenom de l\'employe (03 caracteres minimum)';
                   },
                 ),
               ),
@@ -82,6 +87,7 @@ class _EmployeFormState extends State<EmployeForm> {
                 child: TextFormBox(
                   controller: _cniController,
                   header: 'Numero de la Carte d\'Indetite Nationale',
+                  initialValue: widget.employe == null ? null : widget.employe!.numeroCni,
                   placeholder: '102101201',
                   validator: (value) {
                     if (value == null || !value.contains(RegExp(r'(\d+)')) || value.length != 9)
@@ -114,9 +120,10 @@ class _EmployeFormState extends State<EmployeForm> {
                           contrat: contrat ?? Contrat(),
                           prenom: _prenomController.text,
                           numeroCni: _cniController.text,
-                          dateNaissance: _dateNaissance,
+                          dateNaissance: _dateNaissance.toIso8601String(),
                         );
-                        listEmployes.add(_employe!);
+                        // listEmployes.add(_employe!);
+
                         callback(_employe!);
                       });
                     }

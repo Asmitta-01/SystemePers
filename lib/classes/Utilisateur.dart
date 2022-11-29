@@ -1,15 +1,19 @@
 enum Role { admin, chargePersonnel, directeur, employe }
 
 class Utilisateur {
-  final int _id = 0;
+  int? _id = null;
   String _matricule = '';
   String _motdepasse = '';
   Role? _role;
 
-  Utilisateur({String matricule = '', String motdepasse = ''}) {
+  Utilisateur({int? id, String matricule = '', String motdepasse = '', Role role = Role.admin}) {
+    _id = id;
     _matricule = matricule;
     _motdepasse = motdepasse;
+    _role = role;
   }
+
+  int? get id => _id;
 
   String get matricule => _matricule;
   set matricule(value) => _matricule = value;

@@ -1,35 +1,50 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:systeme_pers/classes/Employe.dart';
+import 'package:systeme_pers/classes/Utilisateur.dart';
+
 import 'package:systeme_pers/pages/ajouter_employe_page.dart';
+import 'package:systeme_pers/pages/gestion_messages_page.dart';
+import 'package:systeme_pers/pages/modifier_informations_page.dart';
+import 'package:systeme_pers/repositories/employe_repository.dart';
 import 'package:systeme_pers/widgets/liste_employes_widget.dart';
-import 'package:systeme_pers/widgets/liste_messages_widget.dart';
 import 'package:systeme_pers/widgets/liste_promotions_widget.dart';
 import 'package:systeme_pers/widgets/liste_sanctions_widget.dart';
 import 'package:systeme_pers/widgets/presentation_documents.dart';
 import 'package:systeme_pers/widgets/presentation_suivi.dart';
 
-import '../classes/Employe.dart';
+class EspaceChargePersPage extends StatefulWidget {
+  const EspaceChargePersPage({super.key, required this.loggeduser});
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-
-  final String title;
+  final Utilisateur loggeduser;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<EspaceChargePersPage> createState() => _EspaceChargePersPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
   var _topIndex = 0;
+  var employeRepository = EmployeRepository();
+  Future<Employe?>? _currentEmploye;
 
-  final _employes = listEmployes;
+  @override
+  void initState() {
+    super.initState();
+    _currentEmploye = employeRepository.findByMatricule(widget.loggeduser.matricule);
+  }
 
   @override
   Widget build(BuildContext context) {
+    var progressBar = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: ProgressBar(
+          activeColor: Colors.blue.darker,
+        ));
+
     return NavigationView(
       appBar: NavigationAppBar(
         title: const Text('Espace Gestionnaire du personnel',
             style: TextStyle(fontSize: 25, color: Colors.white)),
-        height: 70,
+        height: 75,
         leading: const Icon(
           FluentIcons.manager_self_service,
           color: Colors.white,
@@ -45,10 +60,28 @@ class _HomePageState extends State<HomePage> {
           items: [
             PaneItem(
               icon: const Icon(FluentIcons.task_list),
-              title: const Text('Liste des employes'),
-              body: ListeEmplPage(
-                title: 'Liste des employes',
-                employes: _employes,
+              title: FutureBuilder(
+                future: _currentEmploye,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return progressBar;
+                  } else {
+                    return const Text('Liste des employes');
+                  }
+                },
+              ),
+              body: FutureBuilder(
+                future: _currentEmploye,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return progressBar;
+                  } else {
+                    return ListeEmplPage(
+                      title: 'Liste des employes',
+                      logggedEmploye: snapshot.data!,
+                    );
+                  }
+                },
               ),
               selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
             ),
@@ -73,7 +106,19 @@ class _HomePageState extends State<HomePage> {
                 PaneItem(
                   icon: const Icon(FluentIcons.contact_card),
                   title: const Text('Consulter les contrats'),
-                  body: Container(),
+                  body: FutureBuilder(
+                      future: _currentEmploye,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return progressBar;
+                        } else {
+                          return ListeEmplPage(
+                            title: 'Liste des employes',
+                            logggedEmploye: snapshot.data!,
+                            optionContrat: true,
+                          );
+                        }
+                      }),
                   selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
                 ),
               ],
@@ -107,7 +152,7 @@ class _HomePageState extends State<HomePage> {
             PaneItem(
               icon: const Icon(FluentIcons.inbox),
               title: const Text('Messagerie'),
-              body: const ListeMessagesPage(),
+              body: GestionMessagesPage(),
               infoBadge: const InfoBadge(source: Text('3')),
               selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
             ),
@@ -116,7 +161,15 @@ class _HomePageState extends State<HomePage> {
             PaneItem(
               icon: const Icon(FluentIcons.edit_contact),
               title: const Text('Modifier vos informations'),
-              body: const Text('Ok'),
+              body: FutureBuilder(
+                  future: _currentEmploye,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return progressBar;
+                    } else {
+                      return ModifierInfosPage(emlpoye: snapshot.data!);
+                    }
+                  }),
               selectedTileColor: ButtonState.all(Colors.blue.lightest),
             ),
             PaneItem(
@@ -139,21 +192,18 @@ class _HomePageState extends State<HomePage> {
           Button(
             child: const Text('Je veux me deconnecter'),
             onPressed: () {
-              Navigator.pop(context, 'UserLoggingOut');
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
             },
           ),
           FilledButton(
             child: const Text('Annuler'),
             onPressed: () {
-              Navigator.pop(context, 'UserCancelledLogOut');
+              Navigator.pop(context, true);
+              Navigator.pushReplacementNamed(context, '/');
             },
           )
         ],
       ),
     );
-
-    setState(() {
-      debugPrint(result);
-    });
   }
 }

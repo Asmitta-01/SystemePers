@@ -16,7 +16,7 @@ class ListePromotionPage extends StatefulWidget {
 class _ListePromotionWidget extends State<ListePromotionPage> {
   _ListePromotionWidget(this.title);
   final String title;
-  final List<Promotion> promotions = listePromotions;
+  List<Promotion>? promotions;
 
   Promotion? selectedPromotion;
 
@@ -37,32 +37,41 @@ class _ListePromotionWidget extends State<ListePromotionPage> {
         ),
       ),
       padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
-      content: ListView.builder(
-          itemCount: promotions.length,
-          itemBuilder: ((context, index) {
-            var promotion = promotions[index];
-            var datePromotion = promotion.datePromotion;
+      content: promotions == null
+          ? Column(
+              children: [
+                Expanded(
+                    child: ProgressBar(
+                  activeColor: Colors.blue.darker,
+                ))
+              ],
+            )
+          : ListView.builder(
+              itemCount: promotions!.length,
+              itemBuilder: ((context, index) {
+                var promotion = promotions![index];
+                var datePromotion = promotion.datePromotion;
 
-            return ListTile.selectable(
-                selected: selectedPromotion == promotion,
-                selectionMode: ListTileSelectionMode.single,
-                title: Text(promotion.toString()),
-                // subtitle: Text(promotion.toString()),
-                onPressed: () {
-                  setState(() {
-                    selectedPromotion = promotion;
-                    // selectedPromotion?.annuler();
-                  });
-                },
-                trailing: Row(
-                  children: [
-                    Text(
-                      '${datePromotion.day}-${datePromotion.month}-${datePromotion.year}',
-                      style: const TextStyle(fontStyle: FontStyle.italic),
-                    )
-                  ],
-                ));
-          })),
+                return ListTile.selectable(
+                    selected: selectedPromotion == promotion,
+                    selectionMode: ListTileSelectionMode.single,
+                    title: Text(promotion.toString()),
+                    subtitle: Text('Beneficiaire: ${promotion.employe.matricule}'),
+                    onPressed: () {
+                      setState(() {
+                        selectedPromotion = promotion;
+                        // selectedPromotion?.annuler();
+                      });
+                    },
+                    trailing: Row(
+                      children: [
+                        Text(
+                          'attribuee le ${datePromotion.day}-${datePromotion.month}-${datePromotion.year}',
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        )
+                      ],
+                    ));
+              })),
     );
   }
 }

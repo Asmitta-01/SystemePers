@@ -1,15 +1,18 @@
 class Poste {
-  final int _id = 0;
+  int? _id;
   String? _designationPoste;
   String? _description;
 
-  Poste({required String nomDuPoste, required String description}) {
+  Poste({int? id, required String nomDuPoste, required String description}) {
+    _id = id;
     _description = description;
     _designationPoste = nomDuPoste;
   }
 
   String get poste => _designationPoste!;
   set poste(String nomPoste) => _designationPoste = nomPoste;
+
+  String get descriptionPoste => _description!;
 }
 
 var listePostes = [
