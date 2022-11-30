@@ -5,10 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:systeme_pers/classes/Utilisateur.dart';
 
 class UserRepository {
-  /// Cree un nouvel utilisateur et renvoi son identifiant(id)
   Future<Utilisateur> createUser() async {
     var matricule = genererMatricule();
-    while (getUser(matricule: matricule) != null) {
+    while (getUser(matricule: matricule) == null) {
       matricule = genererMatricule();
     }
 
@@ -22,7 +21,7 @@ class UserRepository {
       }),
     );
 
-    print(response.body);
+    debugPrint(response.body);
     return Utilisateur(
       id: int.tryParse(response.body),
       matricule: matricule,
@@ -66,12 +65,16 @@ class UserRepository {
 
     List<dynamic> json = jsonDecode(response.body);
     debugPrint('Fetched all users');
+    if (withAdmin == false) {
+      json = json.where((element) => Role.values.elementAt(element['role']) != Role.admin).toList();
+    }
+
     return json
-        .map((jsonDecode2) => Utilisateur(
-            id: jsonDecode2['id'],
-            matricule: jsonDecode2['matricule'],
-            motdepasse: jsonDecode2['motdepasse'],
-            role: Role.values.elementAt(jsonDecode2['role'])))
+        .map((element) => Utilisateur(
+            id: element['id'],
+            matricule: element['matricule'],
+            motdepasse: element['motdepasse'],
+            role: Role.values.elementAt(element['role'])))
         .toList();
   }
 
@@ -84,6 +87,16 @@ class UserRepository {
         }));
 
     debugPrint('Updated User role');
+  }
+
+  delete({required String matricule}) async {
+    await http.delete(Uri.parse('http://localhost/syspers/user.php'),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'matricule': matricule,
+        }));
+
+    debugPrint('Deleted User $matricule');
   }
 
   String genererMotDePasse() {

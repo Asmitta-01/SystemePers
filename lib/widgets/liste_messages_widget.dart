@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:systeme_pers/classes/Message.dart';
 import 'package:systeme_pers/classes/Utilisateur.dart';
+import 'package:systeme_pers/pages/lire_message.dart';
 import 'package:systeme_pers/repositories/message_repository.dart';
 
 class ListeMessagesPage extends StatefulWidget {
@@ -94,24 +95,6 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
                 // final message = snapshot.data![index];
                 final Future<Message> message = snapshot.data![index];
 
-                var trailing = SizedBox(
-                  width: 240,
-                  child: CommandBar(
-                    primaryItems: [
-                      CommandBarButton(
-                        label: const Text('Imprimer'),
-                        icon: const Icon(FluentIcons.print),
-                        onPressed: () {},
-                      ),
-                      CommandBarButton(
-                        label: const Text('Supprimer'),
-                        icon: const Icon(FluentIcons.delete),
-                        onPressed: () => confirmerSuppression(context),
-                      ),
-                    ],
-                  ),
-                );
-
                 return FutureBuilder(
                   future: message,
                   builder: (context, snapshot) {
@@ -133,7 +116,30 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
                             child: snapshot.data!.recepteur.id == widget.user.id
                                 ? Icon(FluentIcons.download, color: Colors.green)
                                 : Icon(FluentIcons.upload, color: Colors.red)),
-                        trailing: trailing,
+                        trailing: SizedBox(
+                          width: 240,
+                          child: CommandBar(
+                            primaryItems: [
+                              CommandBarButton(
+                                label: const Text('Lire'),
+                                icon: const Icon(FluentIcons.view),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      FluentPageRoute(
+                                        builder: (context) =>
+                                            LireMessagePage(message: snapshot.data!),
+                                      ));
+                                },
+                              ),
+                              CommandBarButton(
+                                label: const Text('Supprimer'),
+                                icon: const Icon(FluentIcons.delete),
+                                onPressed: () => confirmerSuppression(context),
+                              ),
+                            ],
+                          ),
+                        ),
                         selected: selectionMsgs.contains(snapshot.data),
                         selectionMode: checkedEnabled
                             ? ListTileSelectionMode.multiple

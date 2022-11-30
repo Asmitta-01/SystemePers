@@ -4,6 +4,7 @@ import 'package:systeme_pers/classes/Utilisateur.dart';
 
 import 'package:systeme_pers/pages/ajouter_employe_page.dart';
 import 'package:systeme_pers/pages/gestion_messages_page.dart';
+import 'package:systeme_pers/pages/gestion_sanctions_page.dart';
 import 'package:systeme_pers/pages/modifier_informations_page.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
 import 'package:systeme_pers/widgets/liste_employes_widget.dart';
@@ -95,7 +96,7 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
                 PaneItem(
                   icon: const Icon(FluentIcons.distribute_down),
                   title: const Text('Consulter les sanctions'),
-                  body: const ListeSanctionPage(title: 'Liste des sanctions '),
+                  body: SanctionPage(showForm: false),
                   selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
                 ),
                 PaneItem(

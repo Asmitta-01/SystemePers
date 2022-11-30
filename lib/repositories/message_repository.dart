@@ -11,10 +11,11 @@ class MessageRepository {
       body: jsonEncode(message.toJSON()),
     );
     debugPrint('Sending message...');
-    if (response.statusCode == 400)
+    if (response.statusCode == 400) {
       debugPrint(response.body);
-    else
+    } else {
       debugPrint('Sent');
+    }
   }
 
   Future<List<Future<Message>>> all() async {
@@ -35,5 +36,19 @@ class MessageRepository {
     debugPrint('Fetched all messagees for user $idUser...');
     return results.map((e) => Message.fromJSON(e)).toList();
     // }
+  }
+
+  deleteForUser({required int idUser, required bool emetteur}) async {
+    final response = await http.patch(
+      Uri.parse('http://localhost/syspers/message.php'),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode({'id_user': idUser, 'emetteur': emetteur}),
+    );
+    debugPrint('Hiding message for user $idUser');
+    if (response.statusCode == 401) {
+      debugPrint(response.body);
+    } else {
+      debugPrint('Hidden');
+    }
   }
 }

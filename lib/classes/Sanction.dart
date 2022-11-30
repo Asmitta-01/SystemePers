@@ -1,4 +1,5 @@
 import 'package:systeme_pers/classes/Employe.dart';
+import 'package:systeme_pers/repositories/employe_repository.dart';
 
 class Sanction {
   final int? id = null;
@@ -17,7 +18,9 @@ class Sanction {
       required String motif,
       required Employe employe,
       details = '',
-      String dureeSanction = ''}) {
+      int? dureeSanction,
+      String? dateSanction,
+      String? dateSAnnulation}) {
     _libelle = libelle;
     _motif = motif;
     _details = details;
@@ -26,7 +29,11 @@ class Sanction {
     employe.ajouterSanction(this);
 
     _dateSanction = DateTime.now();
-    _active = true;
+
+    _active = false;
+    if ((_dateAnnulation != null && _dateAnnulation!.compareTo(DateTime.now()) < 0) ||
+        (_dureeSanction != null &&
+            _dateSanction!.add(_dureeSanction!).compareTo(DateTime.now()) > 0)) _active = true;
   }
 
   set libelle(String libl) => _libelle = libl;
@@ -39,7 +46,6 @@ class Sanction {
   String get details => _details!;
 
   DateTime get dateDeclaration => _dateSanction!;
-
   DateTime? get dateAnnulation => _dateAnnulation;
 
   bool get estActive => _active!;
@@ -62,5 +68,31 @@ class Sanction {
         'Employe ayant recu la sanction (Matricule): ${_employe!.matricule}\n' +
         'Duree de la sanction: $_dureeSanction\n' +
         (_dateAnnulation != null ? 'Date d\'annulation: $_dateAnnulation' : '');
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'libelle': _libelle,
+      'motif': _motif,
+      'details': _details,
+      'date_sanction': _dateSanction?.toIso8601String(),
+      'duree_sanction': _dureeSanction?.inDays,
+      'date_annulation': _dateAnnulation?.toIso8601String(),
+      'active': _active,
+      'id_employe': _employe?.id
+    };
+  }
+
+  static Future<Sanction> fromJson(Map<String, dynamic> json) async {
+    var employeRepository = EmployeRepository();
+    return Sanction(
+      libelle: json['libelle'],
+      motif: json['motif'],
+      employe: await employeRepository.find(json['id_employe']),
+      details: json['details'],
+      dureeSanction: json['duree_sanction'],
+      dateSAnnulation: json['date_annulation'],
+      dateSanction: json['date_sanction'],
+    );
   }
 }

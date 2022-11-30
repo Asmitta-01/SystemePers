@@ -152,7 +152,7 @@ class _MessageFormState extends State<MessageForm> {
                       } else {
                         setState(() {
                           errorTitre = null;
-                          var pth = '../files/${path.basename(file!.path)}';
+                          var pth = file != null ? '../files/${path.basename(file!.path)}' : '';
                           _message = Message(
                               titre: _titreController.text,
                               contenu: _contenuController.text,

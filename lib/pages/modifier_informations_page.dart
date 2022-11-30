@@ -6,7 +6,6 @@ import 'package:systeme_pers/repositories/employe_repository.dart';
 
 class ModifierInfosPage extends StatefulWidget {
   ModifierInfosPage({super.key, required this.emlpoye});
-
   Employe emlpoye;
 
   @override
@@ -26,11 +25,9 @@ class _ModifierInfosPageState extends State<ModifierInfosPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-      content: EmployeForm(
-        callback: callback,
-        employe: widget.emlpoye,
-      ),
+    return EmployeForm(
+      callback: callback,
+      employe: widget.emlpoye,
     );
   }
 

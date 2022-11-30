@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:systeme_pers/classes/Utilisateur.dart';
+import 'package:systeme_pers/pages/espace_administrateur.dart';
 import 'package:systeme_pers/pages/espace_employe_page.dart';
 import 'package:systeme_pers/repositories/user_repository.dart';
 import 'pages/espace_charge_pers_page.dart';
@@ -80,7 +81,9 @@ class _LoginPageState extends State<LoginPage> {
         '/espaceemploye': ((context) => EspaceEmployePage(
               loggeduser: _fetchedUser!,
             )),
-        '/espaceadministrateur': ((context) => Container())
+        '/espaceadministrateur': ((context) => EspaceAdminPage(
+              loggeduser: _fetchedUser!,
+            ))
       },
       home: Builder(
         builder: (context) {

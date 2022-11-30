@@ -49,6 +49,7 @@ class Message {
   }
 
   String get titre => _titre!;
+  String get contenu => _contenu ?? '';
   DateTime get dateEnvoi => _dateEnvoi!;
 
   set emetteur(Utilisateur emt) => _emetteur = emt;

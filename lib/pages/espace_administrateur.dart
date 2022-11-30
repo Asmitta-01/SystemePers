@@ -5,43 +5,36 @@ import 'package:systeme_pers/classes/Utilisateur.dart';
 
 import 'package:systeme_pers/pages/gestion_messages_page.dart';
 import 'package:systeme_pers/pages/modifier_informations_page.dart';
-import 'package:systeme_pers/repositories/employe_repository.dart';
+import 'package:systeme_pers/repositories/user_repository.dart';
+import 'package:systeme_pers/widgets/liste_utilisateurs_widget.dart';
 
-class EspaceEmployePage extends StatefulWidget {
-  const EspaceEmployePage({super.key, required this.loggeduser});
+class EspaceAdminPage extends StatefulWidget {
+  const EspaceAdminPage({super.key, required this.loggeduser});
 
   final Utilisateur loggeduser;
 
   @override
-  State<EspaceEmployePage> createState() => _EspaceEmployePageState();
+  State<EspaceAdminPage> createState() => _EspaceAdminPageState();
 }
 
-class _EspaceEmployePageState extends State<EspaceEmployePage> {
+class _EspaceAdminPageState extends State<EspaceAdminPage> {
   var _topIndex = 0;
-  var employeRepository = EmployeRepository();
-
-  late Future<Employe?> _currentEmploye;
+  var userRepository = UserRepository();
 
   @override
   void initState() {
     super.initState();
-    debugPrint('Employe Page: Fetched user : ${widget.loggeduser.matricule}');
-    _currentEmploye = employeRepository.find(widget.loggeduser.id!);
   }
 
   @override
   Widget build(BuildContext context) {
-    var progressBar = ProgressBar(
-      activeColor: Colors.blue.darker,
-    );
-
     return NavigationView(
       appBar: NavigationAppBar(
-        title: const Text('Espace Employe de l\'Universite',
+        title: const Text('Espace Administrateur',
             style: TextStyle(fontSize: 25, color: Colors.white)),
         height: 75,
         leading: const Icon(
-          FluentIcons.employee_self_service,
+          FluentIcons.admin,
           color: Colors.white,
         ),
         backgroundColor: Colors.blue.darker,
@@ -54,30 +47,22 @@ class _EspaceEmployePageState extends State<EspaceEmployePage> {
           size: const NavigationPaneSize(openMaxWidth: 300),
           items: [
             PaneItem(
+              icon: const Icon(FluentIcons.page_list),
+              title: const Text('Liste des utilisateurs'),
+              body: ListeUsersPage(loggedUser: widget.loggeduser),
+              selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
+            ),
+            PaneItem(
               icon: const Icon(FluentIcons.inbox),
               title: const Text('Messagerie'),
               body: GestionMessagesPage(
                 currentUser: widget.loggeduser,
               ),
-              infoBadge: const InfoBadge(source: Text('1')),
+              // infoBadge: const InfoBadge(source: Text('1')),
               selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.1)),
             ),
           ],
           footerItems: [
-            PaneItem(
-              icon: const Icon(FluentIcons.edit_contact),
-              title: const Text('Modifier vos informations'),
-              body: FutureBuilder(
-                  future: _currentEmploye,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return progressBar;
-                    } else {
-                      return ModifierInfosPage(emlpoye: snapshot.data!);
-                    }
-                  }),
-              selectedTileColor: ButtonState.all(Colors.blue.lightest),
-            ),
             PaneItem(
               icon: const Icon(FluentIcons.sign_out),
               title: const Text('Se deconnecter'),
