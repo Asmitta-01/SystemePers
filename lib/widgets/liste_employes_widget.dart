@@ -5,6 +5,7 @@ import 'package:systeme_pers/pages/ajouter_employe_page.dart';
 import 'package:systeme_pers/pages/attestation.dart';
 import 'package:systeme_pers/pages/fiche_renseignement.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
+import 'package:systeme_pers/utility.dart';
 
 class ListeEmplPage extends StatefulWidget {
   const ListeEmplPage(
@@ -22,7 +23,7 @@ class ListeEmplPage extends StatefulWidget {
 class _ListeEmplWidget extends State<ListeEmplPage> {
   _ListeEmplWidget(this.optionContrat);
   final bool optionContrat;
-  late Future<List<Future<Employe>>> employes;
+  late Future<List<Employe>> employes;
 
   List<Employe> selectionEmpls = [];
   bool checkedEnabled = false;
@@ -32,7 +33,7 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
   @override
   void initState() {
     super.initState();
-    employes = employeRepository.all(avecContrat: true);
+    employes = employeRepository.all();
   }
 
   @override
@@ -41,9 +42,7 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
       future: employes,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return ProgressBar(
-            activeColor: Colors.blue.darker,
-          );
+          return progressBar;
         } else {
           return ScaffoldPage(
             header: Row(
@@ -62,9 +61,8 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                       : (value) {
                           setState(() {
                             if (value == true) {
-                              snapshot.data!.forEach((element) async {
-                                var data = await element;
-                                selectionEmpls.add(data);
+                              snapshot.data!.forEach((element) {
+                                selectionEmpls.add(element);
                               });
                             } else {
                               selectionEmpls.clear();
@@ -113,95 +111,68 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                 var trailing = optionContrat
                     ? SizedBox(
                         width: 200,
-                        child: FutureBuilder(
-                          future: employe,
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return ProgressBar(
-                                activeColor: Colors.blue.darker,
-                              );
-                            } else {
-                              return CommandBar(primaryItems: [
-                                CommandBarButton(
-                                    label: const Text('Contrats de travail'),
-                                    icon: const Icon(FluentIcons.document_set),
+                        child: CommandBar(primaryItems: [
+                          CommandBarButton(
+                              label: const Text('Contrats de travail'),
+                              icon: const Icon(FluentIcons.document_set),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  FluentPageRoute(
+                                    builder: (context) => FicheRenseignementPage(employe: employe),
+                                  ),
+                                );
+                              }),
+                        ]))
+                    : SizedBox(
+                        width: 370,
+                        child: CommandBar(
+                          primaryItems: [
+                            CommandBarButton(
+                              label: const Text('Fiche renseignement'),
+                              icon: const Icon(FluentIcons.file_template),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  FluentPageRoute(
+                                    builder: (context) => FicheRenseignementPage(employe: employe),
+                                  ),
+                                );
+                              },
+                            ),
+                            employe.id != widget.logggedEmploye.id
+                                ? CommandBarButton(
+                                    label: const Text('Attestation de travail'),
+                                    icon: const Icon(FluentIcons.certificate),
                                     onPressed: () {
                                       Navigator.push(
                                         context,
                                         FluentPageRoute(
-                                          builder: (context) =>
-                                              FicheRenseignementPage(employe: snapshot.data!),
+                                          builder: (context) => AttestationPage(
+                                            employe: employe,
+                                            currentEmploye: widget.logggedEmploye,
+                                          ),
                                         ),
                                       );
-                                    }),
-                              ]);
-                            }
-                          },
-                        ))
-                    : SizedBox(
-                        width: 370,
-                        child: FutureBuilder(
-                            future: employe,
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return ProgressBar(
-                                  activeColor: Colors.blue.darker,
-                                );
-                              } else {
-                                return CommandBar(
-                                  primaryItems: [
-                                    CommandBarButton(
-                                      label: const Text('Fiche renseignement'),
-                                      icon: const Icon(FluentIcons.file_template),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          FluentPageRoute(
-                                            builder: (context) =>
-                                                FicheRenseignementPage(employe: snapshot.data!),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    CommandBarButton(
-                                      label: const Text('Attestation de travail'),
-                                      icon: const Icon(FluentIcons.certificate),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          FluentPageRoute(
-                                            builder: (context) => AttestationPage(
-                                              employe: snapshot.data!,
-                                              currentEmploye: widget.logggedEmploye,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                );
-                              }
-                            }),
-                      );
+                                    },
+                                  )
+                                : CommandBarButton(onPressed: () {}),
+                          ],
+                        ));
 
                 return FutureBuilder(
-                    future: employe,
+                    future: employe.chargerContrats(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return ListTile(
-                          title: ProgressBar(
-                            activeColor: Colors.blue.darker,
-                          ),
+                          title: progressBar,
                         );
                       } else {
                         return ListTile.selectable(
-                          title:
-                              Text("${snapshot.data?.nom.toUpperCase()} ${snapshot.data?.prenom}"),
-                          subtitle: snapshot.data!.postes.isNotEmpty
-                              ? Text(snapshot.data!.postes.last.poste)
-                              : const Text('- - - - -'),
+                          title: Text("${employe.nom.toUpperCase()} ${employe.prenom}"),
+                          subtitle: Text(employe.postesToString),
                           trailing: trailing,
-                          selected: selectionEmpls.contains(snapshot.data),
+                          selected: selectionEmpls.contains(employe),
                           selectionMode: checkedEnabled
                               ? ListTileSelectionMode.multiple
                               : ListTileSelectionMode.single,
@@ -209,12 +180,13 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
                             setState(() {
                               if (selected) {
                                 if (checkedEnabled) {
-                                  selectionEmpls.add(snapshot.data!);
+                                  selectionEmpls.add(employe);
                                 } else {
-                                  selectionEmpls = [snapshot.data!];
+                                  selectionEmpls = [employe];
                                 }
-                              } else
+                              } else {
                                 selectionEmpls.remove(employe);
+                              }
                             });
                           },
                         );
@@ -248,16 +220,6 @@ class _ListeEmplWidget extends State<ListeEmplPage> {
           ;
         }
       },
-    );
-  }
-
-  FilledButton filledButton(
-      {String text = '', IconData icon = FluentIcons.default_settings, void Function()? fn}) {
-    return FilledButton(
-      onPressed: fn ?? () {},
-      child: Row(
-        children: [Text(text), const Padding(padding: EdgeInsets.all(5)), Icon(icon)],
-      ),
     );
   }
 }

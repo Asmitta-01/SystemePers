@@ -1,10 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart';
+
 import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/forms/contrat_form.dart';
 import 'package:systeme_pers/forms/employe_Form.dart';
-
 import 'package:systeme_pers/classes/Contrat.dart';
-import 'package:systeme_pers/pages/espace_charge_pers_page.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
 
 class AjouterEmployePage extends StatefulWidget {
@@ -20,7 +19,7 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
   Employe? employe;
   Contrat? contrat;
 
-  late EmployeRepository _employeRepository;
+  final _employeRepository = EmployeRepository();
 
   callbackContrat(Contrat ctr) {
     setState(() {
@@ -42,21 +41,22 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
   @override
   Widget build(BuildContext context) {
     if (employe != null && contrat != null) {
-      _employeRepository = EmployeRepository();
       _employeRepository.add(employe: employe!, contrat: contrat!);
       Future.delayed(Duration.zero, () => informNouvelEmploye(context));
 
       return Container();
     } else {
-      return widget.casEmploye == false
-          ? ContratForm(
-              callback: callbackContrat,
-              empl: employe,
-            )
-          : EmployeForm(
-              callback: callbackEmploye,
-              contrat: contrat,
-            );
+      if (widget.casEmploye == false) {
+        return ContratForm(
+          callback: callbackContrat,
+          empl: employe,
+        );
+      } else {
+        return EmployeForm(
+          callback: callbackEmploye,
+          contrat: contrat,
+        );
+      }
     }
   }
 

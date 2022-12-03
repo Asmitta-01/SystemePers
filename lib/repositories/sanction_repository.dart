@@ -28,15 +28,15 @@ class SanctionRepository {
 
   add({required Sanction sanction}) async {
     final response = await http.post(
-      Uri.parse('http://localhost/syspers/message.php'),
+      Uri.parse('http://localhost/syspers/sanction.php'),
       headers: <String, String>{'Content-Type': 'application/json'},
       body: jsonEncode(sanction.toJson()),
     );
     debugPrint('Saving sanction...');
-    if (response.statusCode == 400) {
-      debugPrint(response.body);
+    if (response.statusCode == 201) {
+      debugPrint('Saved');
     } else {
-      debugPrint('Sent');
+      debugPrint(response.body);
     }
   }
 }

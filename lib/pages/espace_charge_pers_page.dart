@@ -7,6 +7,7 @@ import 'package:systeme_pers/pages/gestion_messages_page.dart';
 import 'package:systeme_pers/pages/gestion_sanctions_page.dart';
 import 'package:systeme_pers/pages/modifier_informations_page.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
+import 'package:systeme_pers/utility.dart';
 import 'package:systeme_pers/widgets/liste_employes_widget.dart';
 import 'package:systeme_pers/widgets/liste_promotions_widget.dart';
 import 'package:systeme_pers/widgets/liste_sanctions_widget.dart';
@@ -183,31 +184,6 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
               onTap: () => confirmerDeconnexion(context),
             )
           ]),
-    );
-  }
-
-  confirmerDeconnexion(BuildContext context) async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => ContentDialog(
-        title: const Text("Voulez-vous vous deconnecter ?"),
-        content: const Text("Vous avez demande a vous deconnecter. En etes vous sur ?"),
-        actions: [
-          Button(
-            child: const Text('Je veux me deconnecter'),
-            onPressed: () {
-              // Navigator.popUntil(context, (route) => false);
-              Navigator.pushReplacementNamed(context, '/');
-            },
-          ),
-          FilledButton(
-            child: const Text('Annuler'),
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-          )
-        ],
-      ),
     );
   }
 }

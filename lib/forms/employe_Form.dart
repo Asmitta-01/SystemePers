@@ -65,8 +65,9 @@ class _EmployeFormState extends State<EmployeForm> {
                   initialValue: widget.employe == null ? null : widget.employe!.nom,
                   placeholder: 'Hamat',
                   validator: (value) {
-                    if (value == null || value.length < 3)
+                    if (value == null || value.length < 3) {
                       return 'Veuillez entrer le nom de l\'employe (03 caracteres minimum)';
+                    }
                   },
                 ),
               ),
@@ -78,8 +79,9 @@ class _EmployeFormState extends State<EmployeForm> {
                   header: 'Prenoms',
                   placeholder: 'John, Harold, Washington, etc.',
                   validator: (value) {
-                    if (value == null || value.length < 3)
+                    if (value == null || value.length < 3) {
                       return 'Veuillez entrer le prenom de l\'employe (03 caracteres minimum)';
+                    }
                   },
                 ),
               ),
@@ -91,8 +93,9 @@ class _EmployeFormState extends State<EmployeForm> {
                   initialValue: widget.employe == null ? null : widget.employe!.numeroCni,
                   placeholder: '102101201',
                   validator: (value) {
-                    if (value == null || !value.contains(RegExp(r'(\d+)')) || value.length != 9)
+                    if (value == null || !value.contains(RegExp(r'(\d+)')) || value.length != 9) {
                       return 'Veuillez entrer le numero de CNI de l\'employe (09 chiffres).';
+                    }
                   },
                 ),
               ),

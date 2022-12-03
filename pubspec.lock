@@ -162,7 +162,7 @@ packages:
     source: hosted
     version: "3.2.2"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"
@@ -182,13 +182,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   matcher:
     dependency: transitive
     description:
@@ -210,13 +203,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
-  mysql1:
-    dependency: "direct main"
-    description:
-      name: mysql1
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.20.0"
   path:
     dependency: transitive
     description:
@@ -287,13 +273,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.6.2"
-  pool:
-    dependency: transitive
-    description:
-      name: pool
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.1"
   printing:
     dependency: "direct main"
     description:

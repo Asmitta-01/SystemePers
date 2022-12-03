@@ -11,11 +11,11 @@ class ContratForm extends StatefulWidget {
   final Function(Contrat) callback;
 
   @override
-  State<StatefulWidget> createState() => _ContratFormState(empl: empl, callback: callback);
+  State<StatefulWidget> createState() => _ContratFormState(empl: empl);
 }
 
 class _ContratFormState extends State<ContratForm> {
-  _ContratFormState({this.empl, required this.callback}) {
+  _ContratFormState({this.empl}) {
     if (empl != null) {
       matriculEmpl = empl!.matricule;
       receiveEmpl = true;
@@ -23,12 +23,11 @@ class _ContratFormState extends State<ContratForm> {
   }
 
   Employe? empl;
-  Function(Contrat) callback;
   bool receiveEmpl = false;
 
   final _formKey = GlobalKey<FormState>();
   Future<List<Poste>>? _postes;
-  late Future<List<Future<Employe>>> _employes;
+  late Future<List<Employe>> _employes;
 
   Poste? _selectedPoste;
   double _durationValue = 90;
@@ -130,10 +129,11 @@ class _ContratFormState extends State<ContratForm> {
                   placeholder: '10 000',
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || num.tryParse(value) == null)
+                    if (value == null || num.tryParse(value) == null) {
                       return 'Veuillez entrer le salaire (de type entier/flottant)';
-                    else if (num.tryParse(value)! < 30000)
+                    } else if (num.tryParse(value)! < 30000) {
                       return 'Le salaire doit etre superieur ou egale a 30 000 F CFA';
+                    }
                   },
                 ),
               ),
@@ -168,14 +168,10 @@ class _ContratFormState extends State<ContratForm> {
                                 } else {
                                   return AutoSuggestBox(
                                     placeholder: 'Choisissez l\'employe via son matricule',
-                                    items: snapshot.data!.map((e) {
-                                      var data;
-                                      e.then(
-                                        (value) => data = e,
-                                      );
-                                      return AutoSuggestBoxItem(
-                                          value: data.matricule, label: data.matricule);
-                                    }).toList(),
+                                    items: snapshot.data!
+                                        .map((e) =>
+                                            AutoSuggestBoxItem(value: e.matricule, label: e.nom))
+                                        .toList(),
                                     enabled: !nouvelEmploye,
                                     onSelected: (value) {
                                       setState(() {
@@ -292,28 +288,22 @@ class _ContratFormState extends State<ContratForm> {
                     return FilledButton(
                       onPressed: () {
                         if (_formKey.currentState?.validate() ?? false) {
-                          setState(() async {
-                            _contrat = Contrat();
-                            _contrat!.dureeContrat = Duration(days: _durationValue.toInt());
-                            _contrat!.salaire = num.tryParse(_salaireController.text)!.toDouble();
-                            _contrat!.dureePreavis = Duration(days: _preavisValue.toInt());
-                            _contrat!.nbrHeuresTravail = Duration(hours: _hebdoValue.toInt());
-                            _contrat!.clausesSupp = _clausesController.text;
-                            _contrat!.poste = _selectedPoste!;
+                          setState(() {
+                            _contrat = Contrat(
+                              dureeContrat: _durationValue.toInt(),
+                              clauseSupp: _clausesController.text,
+                              dureeHebdo: _hebdoValue.toInt(),
+                              salaire: num.tryParse(_salaireController.text)!.toDouble(),
+                              dureePreavis: _preavisValue.toInt(),
+                              poste: _selectedPoste!,
+                            );
 
                             if (!nouvelEmploye) {
-                              // _contrat!.employe = snapshot.data!
-                              //     .singleWhere((element) => element.matricule == matriculEmpl);
-                              for (var element in snapshot.data!) {
-                                var employe = await element;
-                                if (employe.matricule == matriculEmpl) {
-                                  _contrat!.employe = employe;
-                                  break;
-                                }
-                              }
+                              _contrat!.employe = snapshot.data!
+                                  .singleWhere((element) => element.matricule == matriculEmpl);
                             }
 
-                            callback(_contrat!);
+                            widget.callback(_contrat!);
                           });
                         }
                       },

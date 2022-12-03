@@ -3,6 +3,7 @@ import 'package:systeme_pers/classes/Message.dart';
 import 'package:systeme_pers/classes/Utilisateur.dart';
 import 'package:systeme_pers/pages/lire_message.dart';
 import 'package:systeme_pers/repositories/message_repository.dart';
+import 'package:systeme_pers/utility.dart';
 
 class ListeMessagesPage extends StatefulWidget {
   const ListeMessagesPage({super.key, required this.callback, required this.user});
@@ -218,20 +219,6 @@ class _ListeMessagesPageState extends State<ListeMessagesPage> {
             },
           )
         ],
-      ),
-    );
-  }
-
-  FilledButton filledButton(
-      {String text = '',
-      IconData icon = FluentIcons.default_settings,
-      bool danger = false,
-      void Function()? fn}) {
-    return FilledButton(
-      onPressed: fn ?? () {},
-      style: danger ? ButtonStyle(backgroundColor: ButtonState.all(Colors.red)) : null,
-      child: Row(
-        children: [Text(text), const Padding(padding: EdgeInsets.all(5)), Icon(icon)],
       ),
     );
   }

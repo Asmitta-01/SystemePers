@@ -144,7 +144,7 @@ class _ListeSanctionWidget extends State<ListeSanctionPage> {
                                       snapshot.data!.libelle,
                                     ),
                                     content: Text(
-                                      sanction.toString(),
+                                      snapshot.data!.toString(),
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                     initiallyExpanded: true,
@@ -180,9 +180,9 @@ class _ListeSanctionWidget extends State<ListeSanctionPage> {
                                     : Container(),
                             onPressed: () {
                               setState(() {
-                                if (selectionSanctions.contains(snapshot.data))
+                                if (selectionSanctions.contains(snapshot.data)) {
                                   selectionSanctions.remove(snapshot.data);
-                                else {
+                                } else {
                                   if (!checkedEnabled) selectionSanctions.clear();
                                   selectionSanctions.add(snapshot.data!);
                                 }

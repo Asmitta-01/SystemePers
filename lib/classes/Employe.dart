@@ -5,6 +5,7 @@ import 'package:systeme_pers/classes/Promotion.dart';
 import 'package:systeme_pers/classes/Sanction.dart';
 
 import 'package:systeme_pers/classes/Utilisateur.dart';
+import 'package:systeme_pers/repositories/contrat_repository.dart';
 
 class Employe extends Utilisateur {
   String _nom = '';
@@ -25,15 +26,13 @@ class Employe extends Utilisateur {
       prenom = '',
       numeroCni = '',
       String dateNaissance = '2001-07-08',
-      Contrat? contrat,
-      List<Contrat>? contrats}) {
+      Contrat? contrat}) {
     _nom = nom;
     _prenom = prenom;
     _numeroCni = numeroCni;
     _dateNaissance = DateTime.parse(dateNaissance);
 
     if (contrat != null) _contrats.add(contrat);
-    if (contrats != null) for (var element in _contrats) ajouterContrat(element);
 
     super.role = Role.employe;
   }
@@ -55,9 +54,11 @@ class Employe extends Utilisateur {
   List<Sanction> get sanction => _sanctions;
   List<Poste> get postes => _contrats.map((e) => e.poste).toList();
 
+  String get postesToString => postes.map((e) => e.poste).join(', ');
+
   void ajouterContrat(Contrat ctr) {
     // if (!ctr.employeDefini || (ctr.employeDefini && ctr.employe != this)) ctr.employe = this;
-    if (_contrats.any((element) => element == Contrat())) _contrats.remove(Contrat());
+    _contrats.remove(Contrat());
     _contrats.add(ctr);
   }
 
@@ -80,6 +81,18 @@ class Employe extends Utilisateur {
     }
     // _contrats.remove(ctr);
     ctr.resiliation();
+  }
+
+  Future<bool> chargerContrats() async {
+    var contratRepository = ContratRepository();
+    var contrats = await contratRepository.findAllForEmploye(super.id!);
+
+    _contrats.clear();
+    for (var ft in contrats!) {
+      var ctr = await ft;
+      ajouterContrat(ctr);
+    }
+    return true;
   }
 
   List<Object> toArray() {

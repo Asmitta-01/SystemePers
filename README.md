@@ -1,6 +1,6 @@
 # systeme_pers
 
-Sysrteme de gestion du personnel dans une universite
+Systeme de gestion du personnel dans une universite
 
 ## Getting Started
 

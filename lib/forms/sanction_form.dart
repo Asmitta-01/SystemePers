@@ -1,7 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Sanction.dart';
-import 'package:systeme_pers/classes/Utilisateur.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
 
 class SanctionForm extends StatefulWidget {
@@ -22,17 +21,18 @@ class _SanctionFormState extends State<SanctionForm> {
   final _receiverController = TextEditingController();
 
   String? errorTitre, errorSender, errorMotif;
+
   Sanction? _sanction;
-  Utilisateur? receiver;
+  Employe? receiver;
   int _duration = 5;
 
   var employeRepository = EmployeRepository();
-  late Future<List<Future<Employe>>> _employes;
+  late Future<List<Employe>> _employes;
 
   @override
   void initState() {
     super.initState();
-    _employes = employeRepository.all(avecContrat: false);
+    _employes = employeRepository.all();
   }
 
   @override
@@ -94,12 +94,12 @@ class _SanctionFormState extends State<SanctionForm> {
                           child: AutoSuggestBox(
                             controller: _receiverController,
                             placeholder: 'Choisissez celui qui ecopera de cette sanction',
-                            items: snapshot.data!.map((e) {
-                              return AutoSuggestBoxItem(value: e, label: e.toString());
-                            }).toList(),
+                            items: snapshot.data!
+                                .map((e) => AutoSuggestBoxItem(value: e, label: e.nom))
+                                .toList(),
                             onSelected: (value) {
                               setState(() {
-                                // receiver = value.value;
+                                receiver = value.value;
                               });
                             },
                           )),
@@ -129,7 +129,7 @@ class _SanctionFormState extends State<SanctionForm> {
               const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
               FilledButton(
                   child: const Text(
-                    'Envoyer sanction',
+                    'Creer sanction',
                     style: TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
@@ -149,14 +149,14 @@ class _SanctionFormState extends State<SanctionForm> {
                       } else {
                         setState(() {
                           errorTitre = null;
-                          // _sanction = Sanction(
-                          //     employe: receiver,
-                          //     libelle: _libelleController.text,
-                          //     motif: _motifController.text,
-                          //     details: _detailsController.text,
-                          //     dateSanction: DateTime.now().toIso8601String(),
-                          //     dureeSanction: _duration);
+                          _sanction = Sanction(
+                              employe: receiver!,
+                              libelle: _libelleController.text,
+                              motif: _motifController.text,
+                              details: _detailsController.text,
+                              dureeSanction: _duration);
                         });
+                        widget.callback(_sanction!);
                       }
                     }
                   })

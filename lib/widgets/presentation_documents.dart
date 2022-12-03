@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:systeme_pers/utility.dart';
 
 class PresentationDocumentsPage extends StatelessWidget {
   const PresentationDocumentsPage({super.key});
@@ -30,20 +31,11 @@ class PresentationDocumentsPage extends StatelessWidget {
                 const Text(
                     'Dans cette section, vous pouvez effectuer trois(03) principales actions: '),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                FilledButton(
-                  child: const Text('Etablir un nouveau contrat de travail'),
-                  onPressed: () {},
-                ),
+                filledButton(text: 'Etablir un nouveau contrat de travail'),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                FilledButton(
-                  child: const Text('Etablir une fiche de renseignement d\'employe'),
-                  onPressed: () {},
-                ),
+                filledButton(text: 'Etablir une fiche de renseignement d\'employe'),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                FilledButton(
-                  child: const Text('Etablir une attestaion de travail'),
-                  onPressed: () {},
-                )
+                filledButton(text: 'Etablir une attestaion de travail'),
               ],
             ),
             isLong: false,

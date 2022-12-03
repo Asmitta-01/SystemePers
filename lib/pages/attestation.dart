@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -7,7 +8,7 @@ import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Utilisateur.dart';
 
 class AttestationPage extends StatelessWidget {
-  AttestationPage({super.key, required this.employe, required this.currentEmploye});
+  const AttestationPage({super.key, required this.employe, required this.currentEmploye});
 
   final Employe employe;
   final Employe currentEmploye;
@@ -79,6 +80,7 @@ class AttestationPage extends StatelessWidget {
         build: (format) => _generatePdf(format),
         allowSharing: false,
         canDebug: false,
+        padding: const EdgeInsets.symmetric(horizontal: 45),
         pdfFileName: 'Attestation de travail_${employe.matricule}',
         onPrinted: (context) => inmpressionOk(context),
         onError: (context, error) => inmpressionOk(context, error),
@@ -93,54 +95,58 @@ class AttestationPage extends StatelessWidget {
 
     pdf.addPage(pw.Page(
       pageFormat: format,
-      build: (context) => pw.Column(children: [
-        pw.Container(
-          padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-          margin: const pw.EdgeInsets.only(top: 20),
-          color: PdfColor.fromHex('#FFF'),
-          width: double.infinity,
-          child: pw.Text(
-            'Attestation de travail',
-            style: pw.TextStyle(
-                fontWeight: pw.FontWeight.bold,
-                fontSize: 22,
-                // font: font,
-                decoration: pw.TextDecoration.underline,
-                decorationStyle: pw.TextDecorationStyle.solid),
+      build: (context) {
+        var local = DateTime.now();
+        return pw.Column(children: [
+          pw.Container(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+            margin: const pw.EdgeInsets.only(top: 20),
+            color: PdfColor.fromHex('#FFF'),
+            width: double.infinity,
+            child: pw.Text(
+              'Attestation de travail',
+              style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 22,
+                  // font: font,
+                  decoration: pw.TextDecoration.underline,
+                  decorationStyle: pw.TextDecorationStyle.solid),
+            ),
           ),
-        ),
-        pw.Container(
-          color: PdfColor.fromHex('#FFF'),
-          width: double.infinity,
-          padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 35),
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('Je soussigne, Monsieur/Madame ${currentEmploye.nom} ${currentEmploye.prenom!}, agissant en qualite de' +
-                  ' ${currentEmploye.role == Role.chargePersonnel ? 'charge du personnel' : 'Directeur'} de l\'Univesite de ******'),
-              pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Text('Certifie et atteste par la presnete que :'),
-              pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Text(
-                  'Monsieur/Madame ${employe.nom} ${employe.prenom!}, ne le ${employe.dateNaissance}, demeurant a *********'),
-              pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Text('Est un salarie de notre Universite depuis le ${employe.contrats.first.dateSignature},' +
-                  ' en vertu d\'un contrat de travail a duree ${employe.contrats.any((element) => !element.estCDD) ? 'indeterminee' : 'determinee'}'),
-              pw.Text(
-                  'et qu\'il n\'est actuellement ni demissionnaire, ni en procedure de licenciement.'),
-              pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Text('Il y exerce des fonctions decrites telles que suit: '),
-              pw.Text(employe.contrats.map((e) => e.poste.descriptionPoste).join(', ')),
-              pw.Padding(padding: const pw.EdgeInsets.all(20)),
-              pw.Text(
-                  'Cette attestation est delivree a la demande du Salarie pour servir et faire valoir ce que de droit;'),
-              pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Text('Fait a Douala'),
-              pw.Text('Le ${DateTime.now()}'),
-            ],
+          pw.Container(
+            color: PdfColor.fromHex('#FFF'),
+            width: double.infinity,
+            padding: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 35),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Je soussigne, Monsieur/Madame ${currentEmploye.nom} ${currentEmploye.prenom!}, agissant en qualite de' +
+                    ' ${currentEmploye.role == Role.chargePersonnel ? 'charge du personnel' : 'Directeur'} de l\'Univesite de Douala'),
+                pw.Padding(padding: const pw.EdgeInsets.all(10)),
+                pw.Text('Certifie et atteste par la presente que :'),
+                pw.Padding(padding: const pw.EdgeInsets.all(10)),
+                pw.Text(
+                    'Monsieur/Madame ${employe.nom} ${employe.prenom!}, ne le ${DateFormat.yMMMd('fr_FR').format(employe.dateNaissance)}, demeurant a *********'),
+                pw.Padding(padding: const pw.EdgeInsets.all(10)),
+                pw.Text('Est un salarie de notre Universite depuis le ${DateFormat.yMMMd('fr_FR').format(employe.contrats.first.dateSignature)},' +
+                    ' en vertu d\'un contrat de travail a duree ${employe.contrats.any((element) => !element.estCDD) ? 'indeterminee' : 'determinee'}'),
+                pw.Text(
+                    'et qu\'il n\'est actuellement ni demissionnaire, ni en procedure de licenciement.'),
+                pw.Padding(padding: const pw.EdgeInsets.all(10)),
+                pw.Text('Il y exerce des fonctions decrites telles que suit: '),
+                pw.Text(employe.contrats.map((e) => e.poste.descriptionPoste).join(', ')),
+                pw.Padding(padding: const pw.EdgeInsets.all(20)),
+                pw.Text(
+                    'Cette attestation est delivree a la demande du Salarie pour servir et faire valoir ce que de droit;'),
+                pw.Padding(padding: const pw.EdgeInsets.all(10)),
+                pw.Text('Fait a Douala'),
+                pw.Text(
+                    'Le ${DateFormat.yMMMd('fr_FR').format(local)} a ${DateFormat.Hm('fr_FR').format(local)}'),
+              ],
+            ),
           ),
-        ),
-      ]),
+        ]);
+      },
     ));
 
     return pdf.save();

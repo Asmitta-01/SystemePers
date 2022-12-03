@@ -32,13 +32,14 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       if (_verificationEnCours && _stepOneOk) {
         if (_fetchedUser == null) {
-          debugPrint('Found');
           errrorMat = 'Ce matricule n\'est pas reconnu dans la base';
           _verificationEnCours = false;
+          _stepOneOk = false;
         } else if (!verificationMotdepasse(mdp: _motdepasseController.text)) {
           debugPrint('Checked password');
           errorMdp = "Mot de passes incorrect";
           _verificationEnCours = false;
+          _stepOneOk = false;
         } else {
           _verificationEnCours = false;
           _formKey.currentState!.reset();

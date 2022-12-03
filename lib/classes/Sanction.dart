@@ -18,7 +18,7 @@ class Sanction {
       required String motif,
       required Employe employe,
       details = '',
-      int? dureeSanction,
+      int dureeSanction = 0,
       String? dateSanction,
       String? dateSAnnulation}) {
     _libelle = libelle;
@@ -28,7 +28,8 @@ class Sanction {
     _employe = employe;
     employe.ajouterSanction(this);
 
-    _dateSanction = DateTime.now();
+    _dateSanction = _dateSanction ?? DateTime.now();
+    _dureeSanction = Duration(days: dureeSanction);
 
     _active = false;
     if ((_dateAnnulation != null && _dateAnnulation!.compareTo(DateTime.now()) < 0) ||
@@ -62,6 +63,7 @@ class Sanction {
   String toString() {
     // ignore: prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
     return 'Sanction: $_libelle\n' +
+        '--------------------\n' +
         'Motif: $_motif\n' +
         'Details: $_details\n' +
         'Date d\'application de la sanction: $_dateSanction\n' +
