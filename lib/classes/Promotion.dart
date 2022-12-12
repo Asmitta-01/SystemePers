@@ -1,39 +1,34 @@
 import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Poste.dart';
-
-// var listePromotions = [
-//   Promotion(
-//       employe: listEmployes!.first,
-//       ancienPoste: listePostes.first,
-//       nouveauPoste: listePostes.elementAt(2)),
-//   Promotion(
-//       employe: listEmployes!.elementAt(2),
-//       ancienPoste: listePostes.last,
-//       nouveauPoste: listePostes.first),
-//   Promotion(
-//       employe: listEmployes!.elementAt(5),
-//       ancienPoste: listePostes.elementAt(4),
-//       nouveauPoste: listePostes.elementAt(3))
-// ];
+import 'package:systeme_pers/repositories/employe_repository.dart';
+import 'package:systeme_pers/repositories/poste_repository.dart';
 
 class Promotion {
-  final int _id = 0;
+  int? _id;
   Poste? _ancienPoste;
   Poste? _nouveauPoste;
   DateTime? _datePromotion;
 
   Employe? _employe;
 
-  Promotion({required Employe employe, required Poste ancienPoste, required Poste nouveauPoste}) {
-    assert(employe.postes.contains(ancienPoste));
+  Promotion(
+      {int? id,
+      required Employe employe,
+      required Poste ancienPoste,
+      required Poste nouveauPoste,
+      DateTime? datePromotion}) {
+    // assert(employe.postes.contains(ancienPoste) || employe.postes.contains(nouveauPoste));
+    // assert(employe.postes.any((element) => element.id == ancienPoste.id));
+
+    _id = id;
     _employe = employe;
     _employe!.ajouterPromotion(this);
-    _employe!.contrats.firstWhere((element) => element.poste == ancienPoste).poste = nouveauPoste;
+    // _employe!.contrats.firstWhere((element) => element.poste.id == ancienPoste.id).poste = nouveauPoste;
 
     _ancienPoste = ancienPoste;
     _nouveauPoste = nouveauPoste;
 
-    _datePromotion = DateTime.now();
+    _datePromotion = datePromotion ?? DateTime.now();
   }
 
   Employe get employe => _employe!;
@@ -44,5 +39,27 @@ class Promotion {
   @override
   String toString() {
     return '${_ancienPoste?.poste} --> ${_nouveauPoste?.poste}';
+  }
+
+  static Future<Promotion> fromJSON(Map<String, dynamic> json) async {
+    var posteRepository = PosteRepository();
+    var emplRepository = EmployeRepository();
+
+    return Promotion(
+      id: json['id_promo'],
+      employe: await emplRepository.find(json['id_employe']),
+      ancienPoste: (await posteRepository.findById(idPoste: json['id_ancien_poste']))!,
+      nouveauPoste: (await posteRepository.findById(idPoste: json['id_nouv_poste']))!,
+      datePromotion: DateTime.tryParse(json['date_promo']),
+    );
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'date_promo': _datePromotion!.toIso8601String(),
+      'id_employe': _employe!.id,
+      'id_ancien_poste': _ancienPoste!.id,
+      'id_nouv_poste': _nouveauPoste!.id,
+    };
   }
 }

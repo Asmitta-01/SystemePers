@@ -12,7 +12,7 @@ class SanctionRepository {
     if (response.statusCode == 200) {
       var results = List<Map<String, dynamic>>.from(jsonDecode(response.body));
       debugPrint('Fetching sanction for user $idEmploye');
-      return results.map((c) => Sanction.fromJson(c)).toList();
+      return results.map((c) => Sanction.fromJSON(c)).toList();
     }
 
     return null;
@@ -23,14 +23,14 @@ class SanctionRepository {
 
     List<dynamic> results = jsonDecode(response.body);
     debugPrint('Fetching all Sanctions');
-    return results.map((c) => Sanction.fromJson(c)).toList();
+    return results.map((c) => Sanction.fromJSON(c)).toList();
   }
 
   add({required Sanction sanction}) async {
     final response = await http.post(
       Uri.parse('http://localhost/syspers/sanction.php'),
       headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode(sanction.toJson()),
+      body: jsonEncode(sanction.toJSON()),
     );
     debugPrint('Saving sanction...');
     if (response.statusCode == 201) {

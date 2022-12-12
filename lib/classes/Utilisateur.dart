@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart';
+
 enum Role { admin, chargePersonnel, directeur, employe }
 
 class Utilisateur {
@@ -13,6 +15,8 @@ class Utilisateur {
     _role = role;
   }
 
+  @protected
+  set id(int? value) => _id = value;
   int? get id => _id;
 
   String get matricule => _matricule;

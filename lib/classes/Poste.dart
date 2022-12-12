@@ -9,6 +9,8 @@ class Poste {
     _designationPoste = nomDuPoste;
   }
 
+  int get id => _id!;
+
   String get poste => _designationPoste!;
   set poste(String nomPoste) => _designationPoste = nomPoste;
 

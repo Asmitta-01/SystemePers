@@ -7,7 +7,7 @@ class Sanction {
   String? _motif;
   String? _details;
   DateTime? _dateSanction;
-  Duration? _dureeSanction;
+  int? _dureeSanction;
   DateTime? _dateAnnulation;
   bool? _active;
 
@@ -18,7 +18,7 @@ class Sanction {
       required String motif,
       required Employe employe,
       details = '',
-      int dureeSanction = 0,
+      int? dureeSanction,
       String? dateSanction,
       String? dateSAnnulation}) {
     _libelle = libelle;
@@ -29,12 +29,13 @@ class Sanction {
     employe.ajouterSanction(this);
 
     _dateSanction = _dateSanction ?? DateTime.now();
-    _dureeSanction = Duration(days: dureeSanction);
+    _dureeSanction = dureeSanction;
 
     _active = false;
     if ((_dateAnnulation != null && _dateAnnulation!.compareTo(DateTime.now()) < 0) ||
         (_dureeSanction != null &&
-            _dateSanction!.add(_dureeSanction!).compareTo(DateTime.now()) > 0)) _active = true;
+            _dateSanction!.add(Duration(days: _dureeSanction!)).compareTo(DateTime.now()) > 0))
+      _active = true;
   }
 
   set libelle(String libl) => _libelle = libl;
@@ -72,20 +73,20 @@ class Sanction {
         (_dateAnnulation != null ? 'Date d\'annulation: $_dateAnnulation' : '');
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJSON() {
     return {
       'libelle': _libelle,
       'motif': _motif,
       'details': _details,
       'date_sanction': _dateSanction?.toIso8601String(),
-      'duree_sanction': _dureeSanction?.inDays,
+      'duree_sanction': _dureeSanction,
       'date_annulation': _dateAnnulation?.toIso8601String(),
       'active': _active,
       'id_employe': _employe?.id
     };
   }
 
-  static Future<Sanction> fromJson(Map<String, dynamic> json) async {
+  static Future<Sanction> fromJSON(Map<String, dynamic> json) async {
     var employeRepository = EmployeRepository();
     return Sanction(
       libelle: json['libelle'],

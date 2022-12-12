@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
 import 'package:systeme_pers/classes/Employe.dart';
+import 'package:systeme_pers/classes/Utilisateur.dart';
 import 'package:systeme_pers/forms/contrat_form.dart';
 import 'package:systeme_pers/forms/employe_Form.dart';
 import 'package:systeme_pers/classes/Contrat.dart';
@@ -18,6 +19,7 @@ class AjouterEmployePage extends StatefulWidget {
 class _AjouterEmployePageState extends State<AjouterEmployePage> {
   Employe? employe;
   Contrat? contrat;
+  late Utilisateur user;
 
   final _employeRepository = EmployeRepository();
 
@@ -41,8 +43,10 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
   @override
   Widget build(BuildContext context) {
     if (employe != null && contrat != null) {
-      _employeRepository.add(employe: employe!, contrat: contrat!);
-      Future.delayed(Duration.zero, () => informNouvelEmploye(context));
+      _employeRepository.add(employe: employe!, contrat: contrat!).then((value) {
+        user = value;
+        Future.delayed(Duration.zero, () => informNouvelEmploye(context));
+      });
 
       return Container();
     } else {
@@ -69,7 +73,7 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
             : "Nouvel employe ajoute"),
         content: Text(widget.casEmploye == true && employe != null
             ? "L'empoye ${employe!.matricule} a un nouveau contrat de travail (Nouveau poste: ${contrat!.poste.poste}."
-            : "L'employe nouvellement ajoute est de matricule ${employe!.matricule}."),
+            : "L'employe nouvellement ajoute est de matricule : ${user.matricule}, et a pour Mot de passe : ${user.motdepasse} ."),
         actions: [
           FilledButton(
             child: const Text('Ok, j\'ai compris'),
@@ -79,10 +83,6 @@ class _AjouterEmployePageState extends State<AjouterEmployePage> {
                 if (widget.casEmploye == true) contrat = null;
               });
               Navigator.pop(context, true);
-              // Navigator.pushReplacement(
-              //     context,
-              //     FluentPageRoute(
-              //         builder: (context) =>  EspaceChargePersPage()));
             },
           ),
         ],

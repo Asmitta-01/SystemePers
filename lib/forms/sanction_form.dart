@@ -95,7 +95,8 @@ class _SanctionFormState extends State<SanctionForm> {
                             controller: _receiverController,
                             placeholder: 'Choisissez celui qui ecopera de cette sanction',
                             items: snapshot.data!
-                                .map((e) => AutoSuggestBoxItem(value: e, label: e.nom))
+                                .map((e) => AutoSuggestBoxItem(
+                                    value: e, label: '${e.matricule} - ${e.nom}'))
                                 .toList(),
                             onSelected: (value) {
                               setState(() {

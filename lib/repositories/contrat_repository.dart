@@ -28,4 +28,18 @@ class ContratRepository {
 
     // return null;
   }
+
+  add({required Contrat contrat}) async {
+    final response = await http.post(
+      Uri.parse('http://localhost/syspers/contrat.php'),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(contrat.toJSON()),
+    );
+    debugPrint('Saving contrat...');
+    if (response.statusCode == 201) {
+      debugPrint('Saved');
+    } else {
+      debugPrint(response.body);
+    }
+  }
 }

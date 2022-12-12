@@ -4,6 +4,7 @@ import 'package:systeme_pers/classes/Utilisateur.dart';
 
 import 'package:systeme_pers/pages/ajouter_employe_page.dart';
 import 'package:systeme_pers/pages/gestion_messages_page.dart';
+import 'package:systeme_pers/pages/gestion_promotions_page.dart';
 import 'package:systeme_pers/pages/gestion_sanctions_page.dart';
 import 'package:systeme_pers/pages/modifier_informations_page.dart';
 import 'package:systeme_pers/repositories/employe_repository.dart';
@@ -103,7 +104,7 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
                 PaneItem(
                   icon: const Icon(FluentIcons.promoted_database),
                   title: const Text('Consulter les promotions'),
-                  body: const ListePromotionPage(title: 'Liste des promotions'),
+                  body: PromotionPage(showForm: false),
                   selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
                 ),
                 PaneItem(
@@ -141,7 +142,7 @@ class _EspaceChargePersPageState extends State<EspaceChargePersPage> {
                 PaneItem(
                   icon: const Icon(FluentIcons.certificate),
                   title: const Text('Etablir une attestation de travail'),
-                  body: const ListePromotionPage(title: 'Liste des promotions'),
+                  body: Container(),
                   selectedTileColor: ButtonState.all(Colors.blue.withOpacity(0.3)),
                 ),
                 PaneItem(

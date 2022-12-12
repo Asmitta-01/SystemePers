@@ -83,6 +83,13 @@ class Employe extends Utilisateur {
     ctr.resiliation();
   }
 
+  void recevoirDonneesUser(Utilisateur user) {
+    super.matricule = user.matricule;
+    super.id = user.id;
+    super.motdepasse = user.motdepasse;
+    super.role = user.role;
+  }
+
   Future<bool> chargerContrats() async {
     var contratRepository = ContratRepository();
     var contrats = await contratRepository.findAllForEmploye(super.id!);
@@ -95,12 +102,13 @@ class Employe extends Utilisateur {
     return true;
   }
 
-  List<Object> toArray() {
-    return [
-      _nom,
-      _prenom!,
-      _numeroCni,
-      _dateNaissance!.toIso8601String(),
-    ];
+  Map<String, dynamic> toJSON() {
+    return {
+      'id_user': super.id,
+      'nom_empl': _nom,
+      'prenom_empl': _prenom,
+      'numero_cni': _numeroCni,
+      'date_naissance': _dateNaissance!.toIso8601String(),
+    };
   }
 }

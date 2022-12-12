@@ -10,18 +10,11 @@ class EmployeForm extends StatefulWidget {
 
   @override
   // ignore: no_logic_in_create_state
-  State<StatefulWidget> createState() => _EmployeFormState(callback: callback, contrat: contrat);
+  State<StatefulWidget> createState() => _EmployeFormState();
 }
 
 class _EmployeFormState extends State<EmployeForm> {
   final _formKey = GlobalKey<FormState>();
-
-  _EmployeFormState({this.contrat, required this.callback}) {
-    _dateNaissance = widget.employe == null ? DateTime.now() : widget.employe!.dateNaissance;
-  }
-
-  Function(Employe) callback;
-  Contrat? contrat;
 
   final _nomController = TextEditingController();
   final _prenomController = TextEditingController();
@@ -29,6 +22,12 @@ class _EmployeFormState extends State<EmployeForm> {
   DateTime _dateNaissance = DateTime.now();
 
   Employe? _employe;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateNaissance = widget.employe == null ? DateTime.now() : widget.employe!.dateNaissance;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,14 +120,13 @@ class _EmployeFormState extends State<EmployeForm> {
                       setState(() {
                         _employe = Employe(
                           nom: _nomController.text,
-                          contrat: contrat ?? Contrat(),
+                          contrat: widget.contrat,
                           prenom: _prenomController.text,
                           numeroCni: _cniController.text,
                           dateNaissance: _dateNaissance.toIso8601String(),
                         );
-                        // listEmployes.add(_employe!);
 
-                        callback(_employe!);
+                        widget.callback(_employe!);
                       });
                     }
                   })

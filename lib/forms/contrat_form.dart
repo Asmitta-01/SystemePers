@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+
 import 'package:systeme_pers/classes/Contrat.dart';
 import 'package:systeme_pers/classes/Employe.dart';
 import 'package:systeme_pers/classes/Poste.dart';
@@ -11,18 +12,10 @@ class ContratForm extends StatefulWidget {
   final Function(Contrat) callback;
 
   @override
-  State<StatefulWidget> createState() => _ContratFormState(empl: empl);
+  State<StatefulWidget> createState() => _ContratFormState();
 }
 
 class _ContratFormState extends State<ContratForm> {
-  _ContratFormState({this.empl}) {
-    if (empl != null) {
-      matriculEmpl = empl!.matricule;
-      receiveEmpl = true;
-    }
-  }
-
-  Employe? empl;
   bool receiveEmpl = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -47,6 +40,11 @@ class _ContratFormState extends State<ContratForm> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.empl != null) {
+      matriculEmpl = widget.empl!.matricule;
+      receiveEmpl = true;
+    }
 
     _employes = employeRepository.all();
     _postes = posteRepository.all();
@@ -293,7 +291,7 @@ class _ContratFormState extends State<ContratForm> {
                               dureeContrat: _durationValue.toInt(),
                               clauseSupp: _clausesController.text,
                               dureeHebdo: _hebdoValue.toInt(),
-                              salaire: num.tryParse(_salaireController.text)!.toDouble(),
+                              salaire: double.tryParse(_salaireController.text),
                               dureePreavis: _preavisValue.toInt(),
                               poste: _selectedPoste!,
                             );

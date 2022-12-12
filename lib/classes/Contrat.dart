@@ -23,7 +23,6 @@ class Contrat {
   DateTime? _date_modification;
 
   Poste? _poste;
-
   Employe? _employe;
 
   Contrat(
@@ -109,19 +108,21 @@ class Contrat {
   }
 
   /// Tous les attributs sauf les deux derniers: Employe et Poste
-  List<Object?> toArray() {
-    return [
-      _duree_contrat!,
-      _salaire!,
-      _date_signature!.toIso8601String(),
-      _duree_preavis!,
-      _duree_travail_hebdo!,
-      _clause_supplementaire,
-      _statut,
-      _date_resiliation != null ? _date_resiliation!.toIso8601String() : null,
-      _date_modification != null ? _date_modification!.toIso8601String() : null,
-      _poste!.poste
-    ];
+  Map<String, dynamic> toJSON() {
+    return {
+      'salaire': _salaire!,
+      'duree_contrat': _duree_contrat,
+      'date_signature': _date_signature!.toIso8601String(),
+      'duree_preavis': _duree_preavis!,
+      'duree_hebdo': _duree_travail_hebdo!,
+      'clause_supp': _clause_supplementaire,
+      'statut': _statut,
+      'date_resiliation': _date_resiliation != null ? _date_resiliation!.toIso8601String() : null,
+      'date_modification':
+          _date_modification != null ? _date_modification!.toIso8601String() : null,
+      'id_poste': _poste!.id,
+      'id_employe': _employe!.id
+    };
   }
 
   static Future<Contrat> fromJSON(Map<String, dynamic> array) async {
@@ -129,11 +130,12 @@ class Contrat {
     var employeRepository = EmployeRepository();
 
     return Contrat(
-      dureeContrat: int.tryParse(array['duree_contrat']),
+      id: array['id_contrat'],
+      dureeContrat: array['duree_contrat'],
       salaire: array['salaire'].toDouble(),
       dateSignature: DateTime.tryParse(array['date_sign']),
-      dureePreavis: int.tryParse(array['periode_preavis']),
-      dureeHebdo: int.tryParse(array['duree_travail_hebdo'])!,
+      dureePreavis: array['periode_preavis'],
+      dureeHebdo: array['duree_travail_hebdo'],
       clauseSupp: array['clause_supp'],
       statut: array['statut'],
       dateModification:

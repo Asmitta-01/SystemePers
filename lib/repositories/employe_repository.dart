@@ -11,18 +11,20 @@ class EmployeRepository {
   Future<Utilisateur> add({required Employe employe, required Contrat contrat}) async {
     var userRepository = UserRepository();
     var user = await userRepository.createUser();
+    userRepository.setUserRole(matricule: user.matricule, role: Role.employe);
+    user.role = Role.employe;
+    employe.recevoirDonneesUser(user);
 
     final response = http.post(
       Uri.parse('http://localhost/syspers/employe.php'),
       headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'employe': [user.id, ...employe.toArray()],
-        'contrat': contrat.toArray(),
-      }),
+      body: jsonEncode(employe.toJSON()),
     );
 
-    userRepository.setUserRole(matricule: user.matricule, role: Role.employe);
-    user.role = Role.employe;
+    contrat.employe = employe;
+    var contratRepository = ContratRepository();
+    contratRepository.add(contrat: contrat);
+
     return user;
   }
 
@@ -31,9 +33,7 @@ class EmployeRepository {
         .put(
       Uri.parse('http://localhost/syspers/employe.php'),
       headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'employe': [employe.id, ...employe.toArray()],
-      }),
+      body: jsonEncode(employe.toJSON()),
     )
         .then((response) {
       if (response.statusCode == 202) {
